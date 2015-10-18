@@ -48,26 +48,23 @@ function update(deltaTime) {
     var speed = 2;
 
     if ((position.left - 6) % 68 === 0 && (position.top - 6) % 68 === 0) {
+        robot.dx = 0;
+        robot.dy = 0;
+
         switch (nextDirection()) {
             case 'right':
-                robot['dx'] = 1;
-                robot['dy'] = 0;
+                robot.dx = 1;
                 break;
             case 'left':
-                robot['dx'] = -1;
-                robot['dy'] = 0;
+                robot.dx = -1;
                 break;
             case 'down':
-                robot['dx'] = 0;
-                robot['dy'] = 1;
+                robot.dy = 1;
                 break;
             case 'up':
-                robot['dx'] = 0;
-                robot['dy'] = -1;
+                robot.dy = -1;
                 break;
             default:
-                robot['dx'] = 0;
-                robot['dy'] = 0;
         }
     }
 
