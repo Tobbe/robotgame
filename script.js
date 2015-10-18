@@ -70,7 +70,13 @@ function update(deltaTime) {
                 robot['dy'] = 0;
         }
     }
-robot.css('left', position.left + robot.dx * speed); robot.css('top', position.top + robot.dy * speed); } function frame() { now = timestamp();
+
+    robot.css('left', position.left + robot.dx * speed);
+    robot.css('top', position.top + robot.dy * speed);
+}
+
+function frame() {
+    now = timestamp();
     // duration in seconds, maximum 1 sec
     deltaTime = Math.min(1, (now - last) / 1000);
     update(deltaTime);
