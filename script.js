@@ -31,9 +31,9 @@ function drawPlayingField() {
         function drawButton(x, y) {
             console.log('x', x, 'y', y);
             var button = $('<img src="button.png" class="button"></img>');
-            button.css('top', y + 20 + 10);
-            button.css('left', x + 20 + 10);
-            $('body').append(button);
+            button.css('top', y + 10);
+            button.css('left', x + 10);
+            $('.game_area').append(button);
         }
 
         if (type === 0) {
@@ -91,9 +91,9 @@ function drawPlayingField() {
 
 function createPlayer() {
     robot = $('<img src="robot.png" class="player">');
-    robot.css('top', 26);
-    robot.css('left', 26);
-    $('body').append(robot);
+    robot.css('top', 6);
+    robot.css('left', 6);
+    $('.game_area').append(robot);
 }
 
 function attachClickHandlers() {
@@ -148,7 +148,7 @@ function update(deltaTime) {
 
     var position = robot.position();
 
-    if ((position.left - 26) % 68 === 0 && (position.top - 26) % 68 === 0) {
+    if ((position.left - 6) % 68 === 0 && (position.top - 6) % 68 === 0) {
         robot.dx = 0;
         robot.dy = 0;
 

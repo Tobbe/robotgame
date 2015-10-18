@@ -1,13 +1,19 @@
-.field {
+.game_area {
     position: absolute;
     top: 20px;
     left: 20px;
 }
 
+.field {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 form {
     position: absolute;
-    top: 20px;
-    left: 450px;
+    top: 0;
+    left: 430px;
 }
 
 input {
