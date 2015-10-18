@@ -105,7 +105,6 @@ function nextDirection() {
             // A line will look something like `robot.moveDown(3);`
             var direction = line.substring(10, line.indexOf('(')).toLowerCase();
             var repetitions = line.substr(line.indexOf('(') + 1, 1);
-            console.log('direction', direction, 'reps', repetitions);
             for (var i = 0; i < repetitions; i++) {
                 nextDirection.prototype.stepArray.push(direction);
             }
