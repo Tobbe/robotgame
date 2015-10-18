@@ -19,3 +19,8 @@ input {
     width: 57px;
     height: 57px;
 }
+
+.instructions {
+    position: absolute;
+    top: 450px;
+}
