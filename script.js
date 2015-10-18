@@ -4,17 +4,83 @@ var deltaTime;
 var last = timestamp();
 var frameId;
 
+/**
+ * 1 = Open top
+ * 2 = Open right
+ * 4 = Open down
+ * 8 = Open left
+ */
+var field = [
+    ['04', '00', '06', '12', '00', '00'],
+    ['03', '10', '09', '05', '00', '00'],
+    ['00', '00', '00', '05', '00', '00'],
+    ['00', '00', '00', '05', '00', '00'],
+    ['00', '00', '00', '05', '00', '00'],
+    ['00', '00', '00', '01', '00', '00']];
+
 
 $(function () {
     attachClickHandlers();
+    drawPlayingField();
     createPlayer();
 });
 
+function drawPlayingField() {
+    function drawTile(context, type, x, y) {
+        if (type === 0) {
+            context.fillStyle = '#ccc';
+        } else {
+            context.fillStyle = 'white';
+        }
+
+        context.strokeStyle = 'black';
+
+        context.beginPath();
+        context.rect(x, y, 68, 68);
+        context.fill();
+        context.stroke();
+
+        context.beginPath();
+        context.strokeStyle = 'white';
+
+        if (type & 1) {
+            context.moveTo(x + 4, y);
+            context.lineTo(x + 64, y);
+        }
+
+        if (type & 2) {
+            context.moveTo(x + 68, y + 4);
+            context.lineTo(x + 68, y + 64);
+        }
+
+        if (type & 4) {
+            context.moveTo(x + 4, y + 68);
+            context.lineTo(x + 64, y + 68);
+        }
+
+        if (type & 8) {
+            context.moveTo(x, y + 4);
+            context.lineTo(x, y + 64);
+        }
+
+        context.stroke();
+    }
+
+    var context = $('.field')[0].getContext('2d');
+    context.lineWidth = 2;
+
+    field.forEach(function (line, lineIndex) {
+        line.forEach(function (tile, tileIndex) {
+            drawTile(context, parseInt(tile), tileIndex * 68 + 1, lineIndex * 68 + 1);
+        });
+    });
+}
+
 function createPlayer() {
     robot = $('<img src="robot.png" class="player">');
-    robot.css('top', 6);
-    robot.css('left', 6);
-    $('.field').append(robot);
+    robot.css('top', 26);
+    robot.css('left', 26);
+    $('body').append(robot);
 }
 
 function attachClickHandlers() {
@@ -64,7 +130,7 @@ function update(deltaTime) {
 
     var position = robot.position();
 
-    if ((position.left - 6) % 68 === 0 && (position.top - 6) % 68 === 0) {
+    if ((position.left - 26) % 68 === 0 && (position.top - 26) % 68 === 0) {
         robot.dx = 0;
         robot.dy = 0;
 

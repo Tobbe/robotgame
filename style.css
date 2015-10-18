@@ -2,9 +2,6 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    background: url('grid.png') no-repeat;
-    width: 410px;
-    height: 410px;
 }
 
 form {
