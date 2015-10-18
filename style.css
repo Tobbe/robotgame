@@ -24,3 +24,7 @@ input {
     position: absolute;
     top: 450px;
 }
+
+.button {
+    position: absolute;
+}

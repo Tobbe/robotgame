@@ -9,14 +9,15 @@ var frameId;
  * 2 = Open right
  * 4 = Open down
  * 8 = Open left
+ * 16 = Button
  */
 var field = [
     ['04', '00', '06', '12', '00', '00'],
-    ['03', '10', '09', '05', '00', '00'],
+    ['19', '10', '09', '05', '00', '00'],
     ['00', '00', '00', '05', '00', '00'],
     ['00', '00', '00', '05', '00', '00'],
     ['00', '00', '00', '05', '00', '00'],
-    ['00', '00', '00', '01', '00', '00']];
+    ['00', '00', '00', '17', '00', '00']];
 
 
 $(function () {
@@ -27,6 +28,14 @@ $(function () {
 
 function drawPlayingField() {
     function drawTile(context, type, x, y) {
+        function drawButton(x, y) {
+            console.log('x', x, 'y', y);
+            var button = $('<img src="button.png" class="button"></img>');
+            button.css('top', y + 20 + 10);
+            button.css('left', x + 20 + 10);
+            $('body').append(button);
+        }
+
         if (type === 0) {
             context.fillStyle = '#ccc';
         } else {
@@ -61,6 +70,10 @@ function drawPlayingField() {
         if (type & 8) {
             context.moveTo(x, y + 4);
             context.lineTo(x, y + 64);
+        }
+
+        if (type & 16) {
+            drawButton(x, y);
         }
 
         context.stroke();
