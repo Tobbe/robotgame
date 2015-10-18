@@ -44,13 +44,7 @@ function nextDirection() {
 }
 
 function update(deltaTime) {
-    var position = robot.position();
-    var speed = 2;
-
-    if ((position.left - 6) % 68 === 0 && (position.top - 6) % 68 === 0) {
-        robot.dx = 0;
-        robot.dy = 0;
-
+    function setNewDirection() {
         switch (nextDirection()) {
             case 'right':
                 robot.dx = 1;
@@ -68,16 +62,37 @@ function update(deltaTime) {
         }
     }
 
+    var position = robot.position();
+
+    if ((position.left - 6) % 68 === 0 && (position.top - 6) % 68 === 0) {
+        robot.dx = 0;
+        robot.dy = 0;
+
+        if (!robot.pause) {
+            robot.pause = 500;
+        }
+
+        robot.pause -= deltaTime;
+
+        if (robot.pause <= 0) {
+            delete robot.pause;
+            setNewDirection();
+        }
+    }
+}
+
+function render() {
+    var position = robot.position();
+    var speed = 2;
     robot.css('left', position.left + robot.dx * speed);
     robot.css('top', position.top + robot.dy * speed);
 }
 
 function frame() {
     now = timestamp();
-    // duration in seconds, maximum 1 sec
-    deltaTime = Math.min(1, (now - last) / 1000);
+    deltaTime = now - last;
     update(deltaTime);
-    //render(deltaTime);
+    render(deltaTime);
     last = now;
 
     requestAnimationFrame(frame);
