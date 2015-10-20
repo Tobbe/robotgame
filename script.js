@@ -13,10 +13,14 @@ var frameId;
  *
  * Second position
  * A = Button
+ * B = Chest
+ * C = Red Door
+ * D = Green Door
+ * E = Blue Door
  */
 var field = [
-    ['4-', '0-', '6-', 'C-', '0-', '0-'],
-    ['3A', 'A-', '9-', '5-', '0-', '0-'],
+    ['4-', '0-', '6D', 'CE', '0-', '0-'],
+    ['3A', 'AB', '9C', '5-', '0-', '0-'],
     ['0-', '0-', '0-', '5-', '0-', '0-'],
     ['0-', '0-', '0-', '5-', '0-', '0-'],
     ['0-', '0-', '0-', '5-', '0-', '0-'],
@@ -31,12 +35,12 @@ $(function () {
 
 function drawPlayingField() {
     function drawTile(context, tile, x, y) {
-        function drawButton(x, y) {
-            console.log('x', x, 'y', y);
-            var button = $('<img src="button.png" class="button"></img>');
-            button.css('top', y + 10);
-            button.css('left', x + 10);
-            $('.game_area').append(button);
+        function drawItem(item, x, y) {
+            var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
+            var itemElement = $(imgStr);
+            itemElement.css('top', y + 10);
+            itemElement.css('left', x + 10);
+            $('.game_area').append(itemElement);
         }
 
         var tileOpenings = parseInt(tile[0], 16);
@@ -78,7 +82,23 @@ function drawPlayingField() {
         }
 
         if (tile[1] === 'A') {
-            drawButton(x, y);
+            drawItem('button', x, y);
+        }
+
+        if (tile[1] === 'B') {
+            drawItem('chest', x, y);
+        }
+
+        if (tile[1] === 'C') {
+            drawItem('door_red', x, y);
+        }
+
+        if (tile[1] === 'D') {
+            drawItem('door_green', x, y);
+        }
+
+        if (tile[1] === 'E') {
+            drawItem('door_blue', x, y);
         }
 
         context.stroke();
