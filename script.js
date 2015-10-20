@@ -5,19 +5,22 @@ var last = timestamp();
 var frameId;
 
 /**
+ * First position
  * 1 = Open top
  * 2 = Open right
  * 4 = Open down
  * 8 = Open left
- * 16 = Button
+ *
+ * Second position
+ * A = Button
  */
 var field = [
-    ['04', '00', '06', '12', '00', '00'],
-    ['19', '10', '09', '05', '00', '00'],
-    ['00', '00', '00', '05', '00', '00'],
-    ['00', '00', '00', '05', '00', '00'],
-    ['00', '00', '00', '05', '00', '00'],
-    ['00', '00', '00', '17', '00', '00']];
+    ['4-', '0-', '6-', 'C-', '0-', '0-'],
+    ['3A', 'A-', '9-', '5-', '0-', '0-'],
+    ['0-', '0-', '0-', '5-', '0-', '0-'],
+    ['0-', '0-', '0-', '5-', '0-', '0-'],
+    ['0-', '0-', '0-', '5-', '0-', '0-'],
+    ['0-', '0-', '0-', '1A', '0-', '0-']];
 
 
 $(function () {
@@ -27,7 +30,7 @@ $(function () {
 });
 
 function drawPlayingField() {
-    function drawTile(context, type, x, y) {
+    function drawTile(context, tile, x, y) {
         function drawButton(x, y) {
             console.log('x', x, 'y', y);
             var button = $('<img src="button.png" class="button"></img>');
@@ -36,7 +39,9 @@ function drawPlayingField() {
             $('.game_area').append(button);
         }
 
-        if (type === 0) {
+        var tileOpenings = parseInt(tile[0], 16);
+
+        if (tileOpenings === 0) {
             context.fillStyle = '#ccc';
         } else {
             context.fillStyle = 'white';
@@ -52,27 +57,27 @@ function drawPlayingField() {
         context.beginPath();
         context.strokeStyle = 'white';
 
-        if (type & 1) {
+        if (tileOpenings & 1) {
             context.moveTo(x + 4, y);
             context.lineTo(x + 64, y);
         }
 
-        if (type & 2) {
+        if (tileOpenings & 2) {
             context.moveTo(x + 68, y + 4);
             context.lineTo(x + 68, y + 64);
         }
 
-        if (type & 4) {
+        if (tileOpenings & 4) {
             context.moveTo(x + 4, y + 68);
             context.lineTo(x + 64, y + 68);
         }
 
-        if (type & 8) {
+        if (tileOpenings & 8) {
             context.moveTo(x, y + 4);
             context.lineTo(x, y + 64);
         }
 
-        if (type & 16) {
+        if (tile[1] === 'A') {
             drawButton(x, y);
         }
 
@@ -84,7 +89,7 @@ function drawPlayingField() {
 
     field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
-            drawTile(context, parseInt(tile), tileIndex * 68 + 1, lineIndex * 68 + 1);
+            drawTile(context, tile, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
 }
