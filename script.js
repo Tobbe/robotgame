@@ -157,6 +157,8 @@ function nextInstruction() {
                 }
             } else if (instructionName === 'pushButton') {
                 nextInstruction.instructionArray.push('pushButton');
+            } else if (instructionName === 'openChest') {
+                nextInstruction.instructionArray.push('openChest');
             }
         });
     }
@@ -195,6 +197,12 @@ function update(deltaTime) {
             break;
         case 'pushButton':
             console.log('Turn LED on');
+            robot.instructionCompleted = true;
+            break;
+        case 'openChest':
+            var keys = ['red', 'green', 'blue'];
+            var foundKey = keys[Math.floor(Math.random() * keys.length)];
+            console.log('You collected a ' + foundKey + ' key!');
             robot.instructionCompleted = true;
             break;
     }

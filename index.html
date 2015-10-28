@@ -29,6 +29,7 @@
             robot.moveUp(int steps);<br>
             robot.moveDown(int steps);<br>
             robot.pushButton();
+            robot.openChest();
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -47,6 +48,11 @@
             When the robot stands on a button it can push it using the
             <code>pushButton</code> function. This function takes no
             parameters.
+        </p>
+        <p>
+            When the robot stands on a chest it can open it using the
+            <code>openChest</code> function. Whatever is in the chest will be
+            collected by the robot. This function takes no parameters.
         </p>
     </div>
 
