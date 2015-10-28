@@ -25,7 +25,6 @@ var field = [
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '1A']];
 
-
 $(function () {
     attachClickHandlers();
     drawPlayingField();
@@ -122,12 +121,12 @@ function createPlayer() {
     robot.x = 0;
     robot.y = 0;
     robot.speed = 2;
-    robot.currentInstruction = 'move';
     $('.game_area').append(robot);
 }
 
 function attachClickHandlers() {
     $('input').on('click', function() {
+        robot.currentInstruction = nextInstruction();
         requestAnimationFrame(frame);
     });
 }
@@ -138,59 +137,65 @@ function timestamp() {
         new Date().getTime();
 }
 
-function nextDirection() {
-    if (!nextDirection.prototype.stepArray) {
+function nextInstruction() {
+    if (!nextInstruction.instructionArray) {
         var script = $('textarea').val();
         var lines = script.split('\n');
-        nextDirection.prototype.stepArray = [];
+        nextInstruction.instructionArray = [];
 
         lines.forEach(function (line) {
-            // A line will look something like `robot.moveDown(3);`
-            var direction = line.substring(10, line.indexOf('(')).toLowerCase();
-            var repetitions = line.substr(line.indexOf('(') + 1, 1);
-            for (var i = 0; i < repetitions; i++) {
-                nextDirection.prototype.stepArray.push(direction);
+            // A line will look something like `robot.moveDown(3);` or
+            // `robot.pushButton()`
+
+            var instructionName = line.substring(6, line.indexOf('('));
+
+            if (instructionName.indexOf('move') === 0) {
+                var direction = line.substring(10, line.indexOf('(')).toLowerCase();
+                var repetitions = line.substr(line.indexOf('(') + 1, 1);
+                for (var i = 0; i < repetitions; i++) {
+                    nextInstruction.instructionArray.push(direction);
+                }
+            } else if (instructionName === 'pushButton') {
+                nextInstruction.instructionArray.push('pushButton');
             }
         });
     }
 
-    return nextDirection.prototype.stepArray.shift();
+    return nextInstruction.instructionArray.shift();
 }
 
 function update(deltaTime) {
-    function setNewDirection() {
-        switch (nextDirection()) {
-            case 'right':
-                robot.dx = 1;
-                break;
-            case 'left':
-                robot.dx = -1;
-                break;
-            case 'down':
-                robot.dy = 1;
-                break;
-            case 'up':
-                robot.dy = -1;
-                break;
-            default:
+    function move() {
+        robot.x += robot.dx * robot.speed;
+        robot.y += robot.dy * robot.speed;
+
+        if (robot.x % 100 === 0 && robot.y % 100 === 0) {
+            robot.dx = 0;
+            robot.dy = 0;
+            robot.instructionCompleted = true;
         }
     }
 
     switch (robot.currentInstruction) {
-        case 'move':
-            if (robot.x % 100 === 0 && robot.y % 100 === 0) {
-                setNewDirection();
-            }
-
-            robot.x += robot.dx * robot.speed;
-            robot.y += robot.dy * robot.speed;
-
-            if (robot.x % 100 === 0 && robot.y % 100 === 0) {
-                robot.dx = 0;
-                robot.dy = 0;
-                robot.instructionCompleted = true;
-            }
-
+        case 'right':
+            robot.dx = 1;
+            move();
+            break;
+        case 'left':
+            robot.dx = -1;
+            move();
+            break;
+        case 'down':
+            robot.dy = 1;
+            move();
+            break;
+        case 'up':
+            robot.dy = -1;
+            move();
+            break;
+        case 'pushButton':
+            console.log('Turn LED on');
+            robot.instructionCompleted = true;
             break;
     }
 
@@ -205,7 +210,7 @@ function update(deltaTime) {
 
         if (robot.pause <= 0) {
             delete robot.pause;
-            robot.currentInstruction = 'move';
+            robot.currentInstruction = nextInstruction();
             robot.instructionCompleted = false;
         }
     }
