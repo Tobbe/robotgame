@@ -2,7 +2,6 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
-var frameId;
 
 /**
  * First position
@@ -123,7 +122,7 @@ function createPlayer() {
 
 function attachClickHandlers() {
     $('input').on('click', function() {
-        frameId = requestAnimationFrame(frame);
+        requestAnimationFrame(frame);
     });
 }
 
