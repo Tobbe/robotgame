@@ -117,6 +117,12 @@ function createPlayer() {
     robot = $('<img src="robot.png" class="player">');
     robot.css('top', 6);
     robot.css('left', 6);
+    robot.dx = 0;
+    robot.dy = 0;
+    robot.x = 0;
+    robot.y = 0;
+    robot.speed = 2;
+    robot.currentInstruction = 'move';
     $('.game_area').append(robot);
 }
 
@@ -170,11 +176,26 @@ function update(deltaTime) {
         }
     }
 
-    var position = robot.position();
+    switch (robot.currentInstruction) {
+        case 'move':
+            if (robot.x % 100 === 0 && robot.y % 100 === 0) {
+                setNewDirection();
+            }
 
-    if ((position.left - 6) % 68 === 0 && (position.top - 6) % 68 === 0) {
-        robot.dx = 0;
-        robot.dy = 0;
+            robot.x += robot.dx * robot.speed;
+            robot.y += robot.dy * robot.speed;
+
+            if (robot.x % 100 === 0 && robot.y % 100 === 0) {
+                robot.dx = 0;
+                robot.dy = 0;
+                robot.instructionCompleted = true;
+            }
+
+            break;
+    }
+
+    if (robot.instructionCompleted) {
+        robot.currentInstruction = undefined;
 
         if (!robot.pause) {
             robot.pause = 500;
@@ -184,16 +205,18 @@ function update(deltaTime) {
 
         if (robot.pause <= 0) {
             delete robot.pause;
-            setNewDirection();
+            robot.currentInstruction = 'move';
+            robot.instructionCompleted = false;
         }
     }
 }
 
 function render() {
-    var position = robot.position();
-    var speed = 2;
-    robot.css('left', position.left + robot.dx * speed);
-    robot.css('top', position.top + robot.dy * speed);
+    // The robot takes 100 steps when moving from one map tile to the next
+    // Each map tile is 68 x 68 pixels
+    // So each robot step is 68/100 pixels
+    robot.css('left', 6 + Math.round(robot.x * 68 / 100));
+    robot.css('top', 6 + Math.round(robot.y * 68 / 100));
 }
 
 function frame() {
