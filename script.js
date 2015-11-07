@@ -17,13 +17,22 @@ var last = timestamp();
  * D = Green Door
  * E = Blue Door
  */
-var field = [
+var field = [];
+field[0] = [
+    ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
+    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
+    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
+    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
+    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
+    ['3-', 'B-', 'B-', 'B-', 'B-', '9-']];
+field[1] = [
     ['4-', '0-', '6-', 'AC', 'C-', '0-'],
     ['3A', 'AB', 'F-', 'AD', 'F-', 'C-'],
     ['0-', '0-', '3-', 'AE', '9-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '1A']];
+var currentLevel = 0;
 
 $(function () {
     attachClickHandlers();
@@ -105,7 +114,7 @@ function drawPlayingField() {
     var context = $('.field')[0].getContext('2d');
     context.lineWidth = 2;
 
-    field.forEach(function (line, lineIndex) {
+    field[currentLevel].forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
             drawTile(context, tile, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
@@ -216,7 +225,7 @@ function update(deltaTime) {
             break;
         case 'openDoor':
             var tileCoords = robot.currentTileCoords();
-            var tile = field[tileCoords.y][tileCoords.x];
+            var tile = field[currentLevel][tileCoords.y][tileCoords.x];
 
             if (tile[1] === 'C' && robot.key === 'red') {
                 console.log('open door');
