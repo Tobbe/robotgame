@@ -121,6 +121,12 @@ function createPlayer() {
     robot.x = 0;
     robot.y = 0;
     robot.speed = 2;
+    robot.currentTileCoords = function () {
+        return {
+            x: robot.x / 100 | 0,
+            y: robot.y / 100 | 0
+        };
+    };
     $('.game_area').append(robot);
 }
 
@@ -159,6 +165,8 @@ function nextInstruction() {
                 nextInstruction.instructionArray.push('pushButton');
             } else if (instructionName === 'openChest') {
                 nextInstruction.instructionArray.push('openChest');
+            } else if (instructionName === 'openDoor') {
+                nextInstruction.instructionArray.push('openDoor');
             }
         });
     }
@@ -202,7 +210,22 @@ function update(deltaTime) {
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
+            robot.key = foundKey;
             console.log('You collected a ' + foundKey + ' key!');
+            robot.instructionCompleted = true;
+            break;
+        case 'openDoor':
+            var tileCoords = robot.currentTileCoords();
+            var tile = field[tileCoords.y][tileCoords.x];
+
+            if (tile[1] === 'C' && robot.key === 'red') {
+                console.log('open door');
+            } else if (tile[1] === 'D' && robot.key === 'green') {
+                console.log('open door');
+            } else if (tile[1] === 'E' && robot.key === 'blue') {
+                console.log('open door');
+            }
+
             robot.instructionCompleted = true;
             break;
     }
