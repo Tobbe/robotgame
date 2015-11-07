@@ -11,34 +11,47 @@ var last = timestamp();
  * 8 = Open left
  *
  * Second position
- * A = Button
- * B = Chest
- * C = Red Door
- * D = Green Door
- * E = Blue Door
+ * A = Start position
+ * B = Button
+ * C = Chest
+ * D = Red Door
+ * E = Green Door
+ * F = Blue Door
  */
 var field = [];
 field[0] = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
-    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
+    ['7-', 'F-', 'FA', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['3-', 'B-', 'B-', 'B-', 'B-', '9-']];
 field[1] = [
-    ['4-', '0-', '6-', 'AC', 'C-', '0-'],
-    ['3A', 'AB', 'F-', 'AD', 'F-', 'C-'],
-    ['0-', '0-', '3-', 'AE', '9-', '5-'],
+    ['4-', '0-', '6-', 'AD', 'C-', '0-'],
+    ['3B', 'AC', 'F-', 'AE', 'F-', 'C-'],
+    ['0-', '0-', '3-', 'AF', '9-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
-    ['0-', '0-', '0-', '0-', '0-', '1A']];
+    ['0-', '0-', '0-', '0-', '0-', '1B']];
 var currentLevel = 0;
 
 $(function () {
     attachClickHandlers();
     drawPlayingField();
-    createPlayer();
+    createPlayer(getStartPosition());
 });
+
+function getStartPosition() {
+    for (var y = 0; y < field[currentLevel].length; y++) {
+        for (var x = 0; x < field[currentLevel][y].length; x++) {
+            if (field[currentLevel][y][x][1] === 'A') {
+                return {x: x, y: y};
+            }
+        }
+    }
+
+    return {x: 0, y: 0};
+}
 
 function drawPlayingField() {
     function drawTile(context, tile, x, y) {
@@ -88,23 +101,23 @@ function drawPlayingField() {
             context.lineTo(x, y + 64);
         }
 
-        if (tile[1] === 'A') {
+        if (tile[1] === 'B') {
             drawItem('button', x, y);
         }
 
-        if (tile[1] === 'B') {
+        if (tile[1] === 'C') {
             drawItem('chest', x, y);
         }
 
-        if (tile[1] === 'C') {
+        if (tile[1] === 'D') {
             drawItem('door_red', x, y);
         }
 
-        if (tile[1] === 'D') {
+        if (tile[1] === 'E') {
             drawItem('door_green', x, y);
         }
 
-        if (tile[1] === 'E') {
+        if (tile[1] === 'F') {
             drawItem('door_blue', x, y);
         }
 
@@ -121,14 +134,14 @@ function drawPlayingField() {
     });
 }
 
-function createPlayer() {
+function createPlayer(startCoordinates) {
     robot = $('<img src="robot.png" class="player">');
-    robot.css('top', 6);
-    robot.css('left', 6);
+    robot.css('top', 6 + startCoordinates.y * 68);
+    robot.css('left', 6 + startCoordinates.x * 68);
     robot.dx = 0;
     robot.dy = 0;
-    robot.x = 0;
-    robot.y = 0;
+    robot.x = startCoordinates.x * 100;
+    robot.y = startCoordinates.y * 100;
     robot.speed = 2;
     robot.currentTileCoords = function () {
         return {
@@ -227,11 +240,11 @@ function update(deltaTime) {
             var tileCoords = robot.currentTileCoords();
             var tile = field[currentLevel][tileCoords.y][tileCoords.x];
 
-            if (tile[1] === 'C' && robot.key === 'red') {
+            if (tile[1] === 'D' && robot.key === 'red') {
                 console.log('open door');
-            } else if (tile[1] === 'D' && robot.key === 'green') {
+            } else if (tile[1] === 'E' && robot.key === 'green') {
                 console.log('open door');
-            } else if (tile[1] === 'E' && robot.key === 'blue') {
+            } else if (tile[1] === 'F' && robot.key === 'blue') {
                 console.log('open door');
             }
 
