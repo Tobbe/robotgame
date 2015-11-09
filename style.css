@@ -4,10 +4,14 @@
     left: 20px;
 }
 
-.field {
+.game_menu, .field {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.game_menu {
+    z-index: 200;
 }
 
 form {

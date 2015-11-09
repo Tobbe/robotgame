@@ -37,6 +37,7 @@ var currentLevel = 0;
 
 $(function () {
     attachClickHandlers();
+    drawGameMenu();
     drawPlayingField();
     createPlayer(getStartPosition());
 });
@@ -51,6 +52,17 @@ function getStartPosition() {
     }
 
     return {x: 0, y: 0};
+}
+
+function drawGameMenu() {
+    var context = $('.game_menu')[0].getContext('2d');
+    var img = new Image();
+
+    img.onload = function () {
+        context.drawImage(img, 0, 0);
+    };
+
+    img.src = "game_menu.png";
 }
 
 function drawPlayingField() {
@@ -156,6 +168,10 @@ function attachClickHandlers() {
     $('input').on('click', function() {
         robot.currentInstruction = nextInstruction();
         requestAnimationFrame(frame);
+    });
+
+    $('.game_menu').on('click', function() {
+        $(this).hide();
     });
 }
 
