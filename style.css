@@ -28,6 +28,7 @@ input {
     position: absolute;
     width: 57px;
     height: 57px;
+    z-index: 100;
 }
 
 .instructions {

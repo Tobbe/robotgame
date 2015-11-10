@@ -33,13 +33,15 @@ field[1] = [
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '1B']];
-var currentLevel = 0;
+var currentLevel = -1;
+
+var gameState = 'MENU';
 
 $(function () {
     attachClickHandlers();
     drawGameMenu();
-    drawPlayingField();
-    createPlayer(getStartPosition());
+    createPlayer();
+    requestAnimationFrame(frame);
 });
 
 function getStartPosition() {
@@ -148,12 +150,12 @@ function drawPlayingField() {
 
 function createPlayer(startCoordinates) {
     robot = $('<img src="robot.png" class="player">');
-    robot.css('top', 6 + startCoordinates.y * 68);
-    robot.css('left', 6 + startCoordinates.x * 68);
+    robot.css('top', 6);
+    robot.css('left', 6);
     robot.dx = 0;
     robot.dy = 0;
-    robot.x = startCoordinates.x * 100;
-    robot.y = startCoordinates.y * 100;
+    robot.x = 0;
+    robot.y = 0;
     robot.speed = 2;
     robot.currentTileCoords = function () {
         return {
@@ -164,15 +166,38 @@ function createPlayer(startCoordinates) {
     $('.game_area').append(robot);
 }
 
+function setPlayerPosition(coords) {
+    robot.css('top', 6 + coords.y * 68);
+    robot.css('left', 6 + coords.x * 68);
+    robot.x = coords.x * 100;
+    robot.y = coords.y * 100;
+}
+
 function attachClickHandlers() {
     $('input').on('click', function() {
         robot.currentInstruction = nextInstruction();
-        requestAnimationFrame(frame);
+        robot.instructionCompleted = false;
     });
 
     $('.game_menu').on('click', function() {
-        $(this).hide();
+        changeGameState();
     });
+}
+
+function changeGameState() {
+    if (gameState === 'MENU') {
+        delete nextInstruction.instructionArray;
+        currentLevel++;
+        drawPlayingField();
+        setPlayerPosition(getStartPosition());
+        $('.game_menu').hide();
+        gameState = 'GAME';
+    } else {
+        $('.game_menu').show();
+        robot.currentInstruction = 'wait';
+        robot.instructionCompleted = false;
+        gameState = 'MENU';
+    }
 }
 
 function timestamp() {
@@ -213,6 +238,14 @@ function nextInstruction() {
 }
 
 function update(deltaTime) {
+    function levelCompleted() {
+        var tileCoords = robot.currentTileCoords();
+        var currentField = field[currentLevel];
+
+        return tileCoords.y === currentField.length - 1 &&
+            tileCoords.x === currentField[0].length - 1;
+    }
+
     function move() {
         robot.x += robot.dx * robot.speed;
         robot.y += robot.dy * robot.speed;
@@ -279,8 +312,13 @@ function update(deltaTime) {
 
         if (robot.pause <= 0) {
             delete robot.pause;
-            robot.currentInstruction = nextInstruction();
-            robot.instructionCompleted = false;
+
+            if (levelCompleted()) {
+                changeGameState();
+            } else {
+                robot.currentInstruction = nextInstruction();
+                robot.instructionCompleted = false;
+            }
         }
     }
 }
@@ -296,8 +334,12 @@ function render() {
 function frame() {
     now = timestamp();
     deltaTime = now - last;
-    update(deltaTime);
-    render(deltaTime);
+
+    if (gameState === 'GAME') {
+        update(deltaTime);
+        render(deltaTime);
+    }
+
     last = now;
 
     requestAnimationFrame(frame);
