@@ -18,15 +18,15 @@ var last = timestamp();
  * E = Green Door
  * F = Blue Door
  */
-var field = [];
-field[0] = [
+var levels = [{}, {}];
+levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'FA', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['3-', 'B-', 'B-', 'B-', 'B-', '9-']];
-field[1] = [
+levels[1].field = [
     ['4-', '0-', '6-', 'AD', 'C-', '0-'],
     ['3B', 'AC', 'F-', 'AE', 'F-', 'C-'],
     ['0-', '0-', '3-', 'AF', '9-', '5-'],
@@ -45,9 +45,9 @@ $(function () {
 });
 
 function getStartPosition() {
-    for (var y = 0; y < field[currentLevel].length; y++) {
-        for (var x = 0; x < field[currentLevel][y].length; x++) {
-            if (field[currentLevel][y][x][1] === 'A') {
+    for (var y = 0; y < levels[currentLevel].field.length; y++) {
+        for (var x = 0; x < levels[currentLevel].field[y].length; x++) {
+            if (levels[currentLevel].field[y][x][1] === 'A') {
                 return {x: x, y: y};
             }
         }
@@ -141,7 +141,7 @@ function drawPlayingField() {
     var context = $('.field')[0].getContext('2d');
     context.lineWidth = 2;
 
-    field[currentLevel].forEach(function (line, lineIndex) {
+    levels[currentLevel].field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
             drawTile(context, tile, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
@@ -240,7 +240,7 @@ function nextInstruction() {
 function update(deltaTime) {
     function levelCompleted() {
         var tileCoords = robot.currentTileCoords();
-        var currentField = field[currentLevel];
+        var currentField = levels[currentLevel].field;
 
         return tileCoords.y === currentField.length - 1 &&
             tileCoords.x === currentField[0].length - 1;
@@ -287,7 +287,7 @@ function update(deltaTime) {
             break;
         case 'openDoor':
             var tileCoords = robot.currentTileCoords();
-            var tile = field[currentLevel][tileCoords.y][tileCoords.x];
+            var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
 
             if (tile[1] === 'D' && robot.key === 'red') {
                 console.log('open door');
