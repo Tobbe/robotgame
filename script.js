@@ -271,11 +271,13 @@ function nextInstruction() {
 
 function update(deltaTime) {
     function levelCompleted() {
-        var tileCoords = robot.currentTileCoords();
-        var currentField = levels[currentLevel].field;
+        for (var i = 0; i < levels[currentLevel].leds.length; i++) {
+            if (!levels[currentLevel].leds[i].on) {
+                return false;
+            }
+        }
 
-        return tileCoords.y === currentField.length - 1 &&
-            tileCoords.x === currentField[0].length - 1;
+        return true;
     }
 
     function move() {
