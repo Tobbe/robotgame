@@ -22,10 +22,22 @@ var levels = [{}, {}];
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
-    ['7-', 'F-', 'FA', 'F-', 'F-', 'D-'],
+    ['7-', 'F-', 'FA', 'FB', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['3-', 'B-', 'B-', 'B-', 'B-', '9-']];
+levels[0].items = [[], [], [], [], [], []];
+levels[0].items[2][3] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[0].leds = [{on: false}];
+levels[0].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }];
 levels[1].field = [
     ['4-', '0-', '6-', 'AD', 'C-', '0-'],
     ['3B', 'AC', 'F-', 'AE', 'F-', 'C-'],
@@ -33,6 +45,7 @@ levels[1].field = [
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '1B']];
+levels[1].leds = [{on: false}, {on: false}];
 var currentLevel = -1;
 
 var gameState = 'MENU';
@@ -68,6 +81,21 @@ function drawGameMenu() {
 }
 
 function drawPlayingField() {
+    function drawLEDs(ledCount, context, x, y) {
+        for (var i = 0; i < ledCount; i++) {
+            context.beginPath();
+            context.arc(x - i * 24, y, 10, 2 * Math.PI, false);
+            if (levels[currentLevel].leds[ledCount - 1 - i].on) {
+                context.fillStyle = 'yellow';
+            } else {
+                context.fillStyle = 'white';
+            }
+            context.fill();
+            context.strokeStyle = '#cfcf32';
+            context.stroke();
+        }
+    }
+
     function drawTile(context, tile, x, y) {
         function drawItem(item, x, y) {
             var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
@@ -146,6 +174,10 @@ function drawPlayingField() {
             drawTile(context, tile, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
+
+    var statusAreaY = levels[currentLevel].field.length * 68 + 10;
+    var statusAreaX = levels[currentLevel].field[0].length * 68;
+    drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 12);
 }
 
 function createPlayer(startCoordinates) {
@@ -257,6 +289,8 @@ function update(deltaTime) {
         }
     }
 
+    var tileCoords = robot.currentTileCoords();
+
     switch (robot.currentInstruction) {
         case 'right':
             robot.dx = 1;
@@ -275,7 +309,13 @@ function update(deltaTime) {
             move();
             break;
         case 'pushButton':
-            console.log('Turn LED on');
+            var item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            if (item.key === 'buttons') {
+                var button = levels[currentLevel].buttons[item.index];
+                var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
+                controlledItem.on = !controlledItem.on;
+                drawPlayingField();
+            }
             robot.instructionCompleted = true;
             break;
         case 'openChest':
@@ -286,7 +326,6 @@ function update(deltaTime) {
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
-            var tileCoords = robot.currentTileCoords();
             var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
 
             if (tile[1] === 'D' && robot.key === 'red') {
