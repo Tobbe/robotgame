@@ -45,7 +45,27 @@ levels[1].field = [
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '1B']];
+levels[1].items = [[], [], [], [], [], []];
+levels[1].items[1][0] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[1].items[5][5] = {
+        key: 'buttons',
+        index: '1'
+    };
 levels[1].leds = [{on: false}, {on: false}];
+levels[1].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }, {
+        controlls: {
+            key: 'leds',
+            index: 1
+        }
+    }];
 var currentLevel = -1;
 
 var gameState = 'MENU';
