@@ -191,7 +191,9 @@ function drawPlayingField() {
         context.stroke();
     }
 
-    var context = $('.field')[0].getContext('2d');
+    var canvas = $('.field')[0];
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
     context.lineWidth = 2;
 
     levels[currentLevel].field.forEach(function (line, lineIndex) {
@@ -245,6 +247,8 @@ function changeGameState() {
     if (gameState === 'MENU') {
         delete nextInstruction.instructionArray;
         currentLevel++;
+        $('.game_area textarea').val('');
+        $('.field_item').remove();
         drawPlayingField();
         setPlayerPosition(getStartPosition());
         $('.game_menu').hide();
