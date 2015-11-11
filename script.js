@@ -18,7 +18,7 @@ var last = timestamp();
  * E = Green Door
  * F = Blue Door
  */
-var levels = [{}, {}];
+var levels = [{}, {}, {}];
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
@@ -38,24 +38,45 @@ levels[0].buttons = [{
             index: 0
         }
     }];
+
 levels[1].field = [
+    ['4A', '0-', '0-', '0-', '0-', '0-'],
+    ['5-', '0-', '0-', '6-', 'C-', '0-'],
+    ['3-', 'A-', 'A-', '9-', '1B', '0-'],
+    ['0-', '0-', '0-', '0-', '0-', '0-'],
+    ['0-', '0-', '0-', '0-', '0-', '0-'],
+    ['0-', '0-', '0-', '0-', '0-', '0-']];
+levels[1].items = [[], [], [], [], [], []];
+levels[1].items[2][4] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[1].leds = [{on: false}];
+levels[1].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }];
+
+levels[2].field = [
     ['4-', '0-', '6-', 'AD', 'C-', '0-'],
     ['3B', 'AC', 'F-', 'AE', 'F-', 'C-'],
     ['0-', '0-', '3-', 'AF', '9-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '5-'],
     ['0-', '0-', '0-', '0-', '0-', '1B']];
-levels[1].items = [[], [], [], [], [], []];
-levels[1].items[1][0] = {
+levels[2].items = [[], [], [], [], [], []];
+levels[2].items[2][0] = {
         key: 'buttons',
         index: '0'
     };
-levels[1].items[5][5] = {
+levels[2].items[5][5] = {
         key: 'buttons',
         index: '1'
     };
-levels[1].leds = [{on: false}, {on: false}];
-levels[1].buttons = [{
+levels[2].leds = [{on: false}, {on: false}];
+levels[2].buttons = [{
         controlls: {
             key: 'leds',
             index: 0
