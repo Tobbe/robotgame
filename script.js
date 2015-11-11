@@ -262,6 +262,14 @@ function attachClickHandlers() {
     $('.game_menu').on('click', function() {
         changeGameState();
     });
+
+    $('body').on('keypress', function (event) {
+        if (gameState === 'MENU') {
+            var num = -48 + event.which;
+            currentLevel = num - 2;
+            changeGameState();
+        }
+    });
 }
 
 function changeGameState() {
