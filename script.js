@@ -90,11 +90,16 @@ function getStartPosition() {
 }
 
 function drawGameMenu() {
-    var context = $('.game_menu')[0].getContext('2d');
+    var context = $('.game_menu')[0].getContext('2d', {alpha: false});
     var img = new Image();
+    var text = "Click to start level " + (currentLevel + 2);
 
     img.onload = function () {
         context.drawImage(img, 0, 0);
+        context.font = "36px Calibri";
+        context.fillStyle = '#ff00dc';
+        var textX = (img.width - context.measureText(text).width) / 2 | 0;
+        context.fillText(text, textX, img.height - 180);
     };
 
     img.src = "game_menu.png";
@@ -246,6 +251,7 @@ function changeGameState() {
         gameState = 'GAME';
     } else {
         $('.game_menu').show();
+        drawGameMenu();
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
         gameState = 'MENU';
