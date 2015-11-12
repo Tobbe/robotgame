@@ -2,6 +2,7 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
+var ast;
 
 /**
  * First position
@@ -255,6 +256,7 @@ function setPlayerPosition(coords) {
 
 function attachClickHandlers() {
     $('input').on('click', function() {
+        ast = buildAst();
         robot.currentInstruction = nextInstruction();
         robot.instructionCompleted = false;
     });
@@ -297,32 +299,38 @@ function timestamp() {
         new Date().getTime();
 }
 
+function buildAst() {
+    var ast = new TreeNode('', true);
+    var script = $('textarea').val();
+    var lines = script.split('\n');
+
+    lines.forEach(function (line) {
+        // A line will look something like `robot.moveDown(3);` or
+        // `robot.pushButton()`
+
+        var instructionName = line.substring(6, line.indexOf('('));
+
+        if (instructionName.indexOf('move') === 0) {
+            var direction = line.substring(10, line.indexOf('(')).toLowerCase();
+            var repetitions = line.substr(line.indexOf('(') + 1, 1);
+            for (var i = 0; i < repetitions; i++) {
+                ast.newLevelChild(direction);
+            }
+        } else if (instructionName === 'pushButton') {
+            ast.newLevelChild('pushButton');
+        } else if (instructionName === 'openChest') {
+            ast.newLevelChild('openChest');
+        } else if (instructionName === 'openDoor') {
+            ast.newLevelChild('openDoor');
+        }
+    });
+
+    return ast;
+}
+
 function nextInstruction() {
     if (!nextInstruction.instructionArray) {
-        var script = $('textarea').val();
-        var lines = script.split('\n');
-        nextInstruction.instructionArray = [];
-
-        lines.forEach(function (line) {
-            // A line will look something like `robot.moveDown(3);` or
-            // `robot.pushButton()`
-
-            var instructionName = line.substring(6, line.indexOf('('));
-
-            if (instructionName.indexOf('move') === 0) {
-                var direction = line.substring(10, line.indexOf('(')).toLowerCase();
-                var repetitions = line.substr(line.indexOf('(') + 1, 1);
-                for (var i = 0; i < repetitions; i++) {
-                    nextInstruction.instructionArray.push(direction);
-                }
-            } else if (instructionName === 'pushButton') {
-                nextInstruction.instructionArray.push('pushButton');
-            } else if (instructionName === 'openChest') {
-                nextInstruction.instructionArray.push('openChest');
-            } else if (instructionName === 'openDoor') {
-                nextInstruction.instructionArray.push('openDoor');
-            }
-        });
+        nextInstruction.instructionArray = ast.toArray();
     }
 
     return nextInstruction.instructionArray.shift();
@@ -444,3 +452,30 @@ function frame() {
 
     requestAnimationFrame(frame);
 }
+
+function TreeNode(data, isRoot) {
+    this.data = data;
+    this.isRoot = isRoot;
+    this.children = [];
+}
+
+TreeNode.prototype.newLevelChild = function(data) {
+    if (this.children.length === 0) {
+        this.children.push(new TreeNode(data));
+    } else {
+        this.children[0].newLevelChild(data);
+    }
+};
+
+TreeNode.prototype.toArray = function() {
+    var array = [this.data];
+
+    if (this.children.length) {
+        var childArray = this.children[0].toArray();
+        array = this.isRoot ? childArray : array.concat(childArray);
+    }
+
+    console.log(array);
+
+    return array;
+};
