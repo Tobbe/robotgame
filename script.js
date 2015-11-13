@@ -308,20 +308,10 @@ function buildAst() {
         // A line will look something like `robot.moveDown(3);` or
         // `robot.pushButton()`
 
-        var instructionName = line.substring(6, line.indexOf('('));
+        var instruction = MethodInvocation.create(line);
 
-        if (instructionName.indexOf('move') === 0) {
-            var direction = line.substring(10, line.indexOf('(')).toLowerCase();
-            var repetitions = line.substr(line.indexOf('(') + 1, 1);
-            for (var i = 0; i < repetitions; i++) {
-                ast.newLevelChild(direction);
-            }
-        } else if (instructionName === 'pushButton') {
-            ast.newLevelChild('pushButton');
-        } else if (instructionName === 'openChest') {
-            ast.newLevelChild('openChest');
-        } else if (instructionName === 'openDoor') {
-            ast.newLevelChild('openDoor');
+        if (instruction) {
+            ast.newLevelChild(instruction);
         }
     });
 
@@ -468,14 +458,50 @@ TreeNode.prototype.newLevelChild = function(data) {
 };
 
 TreeNode.prototype.toArray = function() {
-    var array = [this.data];
+    var array = this.data ? this.data.toArray() : [];
 
     if (this.children.length) {
         var childArray = this.children[0].toArray();
         array = this.isRoot ? childArray : array.concat(childArray);
     }
 
-    console.log(array);
+    return array;
+};
+
+function MethodInvocation(method, invocations) {
+    this.method = method;
+    this.invocations = invocations || 1;
+}
+
+MethodInvocation.prototype.toArray = function () {
+    var array = [];
+
+    for (var i = 0; i < this.invocations; i++) {
+        array.push(this.method);
+    }
 
     return array;
+};
+
+MethodInvocation.create = function (line) {
+    if (!line.startsWith('robot.')) {
+        return null;
+    }
+
+    var instructionName = line.substring(6, line.indexOf('('));
+    var methodInvocation = null;
+
+    if (instructionName.indexOf('move') === 0) {
+        var direction = line.substring(10, line.indexOf('(')).toLowerCase();
+        var repetitions = line.substr(line.indexOf('(') + 1, 1);
+        methodInvocation = new MethodInvocation(direction, repetitions);
+    } else if (instructionName === 'pushButton') {
+        methodInvocation = new MethodInvocation('pushButton');
+    } else if (instructionName === 'openChest') {
+        methodInvocation = new MethodInvocation('openChest');
+    } else if (instructionName === 'openDoor') {
+        methodInvocation = new MethodInvocation('openDoor');
+    }
+
+    return methodInvocation;
 };
