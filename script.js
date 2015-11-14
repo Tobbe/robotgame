@@ -3,6 +3,7 @@ var now;
 var deltaTime;
 var last = timestamp();
 var ast;
+var tokenizer;
 
 /**
  * First position
@@ -302,18 +303,14 @@ function timestamp() {
 function buildAst() {
     var ast = new TreeNode('', true);
     var script = $('textarea').val();
-    var lines = script.split('\n');
+    var tokenizer = new Tokenizer(script);
+    var parser = new Parser(tokenizer, ast);
 
-    lines.forEach(function (line) {
-        // A line will look something like `robot.moveDown(3);` or
-        // `robot.pushButton()`
+    var currentToken;
 
-        var instruction = MethodInvocation.create(line);
-
-        if (instruction) {
-            ast.newLevelChild(instruction);
-        }
-    });
+    while (!!(currentToken = tokenizer.getNextToken())) {
+        ast.newLevelChild(parser.parseMethodInvocation());
+    }
 
     return ast;
 }
@@ -483,25 +480,52 @@ MethodInvocation.prototype.toArray = function () {
     return array;
 };
 
-MethodInvocation.create = function (line) {
-    if (!line.startsWith('robot.')) {
-        return null;
-    }
-
-    var instructionName = line.substring(6, line.indexOf('('));
-    var methodInvocation = null;
-
-    if (instructionName.indexOf('move') === 0) {
-        var direction = line.substring(10, line.indexOf('(')).toLowerCase();
-        var repetitions = line.substr(line.indexOf('(') + 1, 1);
+MethodInvocation.create = function (name, args) {
+    if (name.indexOf('move') === 0) {
+        var direction = name.substring(4, name.length).toLowerCase();
+        var repetitions = args[0];
         methodInvocation = new MethodInvocation(direction, repetitions);
-    } else if (instructionName === 'pushButton') {
-        methodInvocation = new MethodInvocation('pushButton');
-    } else if (instructionName === 'openChest') {
-        methodInvocation = new MethodInvocation('openChest');
-    } else if (instructionName === 'openDoor') {
-        methodInvocation = new MethodInvocation('openDoor');
+    } else {
+        methodInvocation = new MethodInvocation(name);
     }
 
     return methodInvocation;
+};
+
+function Tokenizer(code) {
+    this.tokens = code
+        .split(/([().;])|[ \n]/)
+        .filter(function (item) { return item; });
+    this.currentToken = this.tokens[0];
+}
+
+Tokenizer.prototype.getNextToken = function () {
+    return (this.currentToken = this.tokens.shift());
+};
+
+Tokenizer.prototype.getCurrentToken = function () {
+    return this.currentToken;
+};
+
+function Parser(tokenizer, ast) {
+    this.tokenizer = tokenizer;
+    this.ast = ast;
+}
+
+Parser.prototype.parseMethodInvocation = function () {
+    var token = this.tokenizer.getCurrentToken();
+
+    if (token === 'robot' && this.tokenizer.getNextToken() === '.') {
+        var methodName = this.tokenizer.getNextToken();
+        this.tokenizer.getNextToken(); // Eat '('
+
+        var args = [];
+        while (this.tokenizer.getNextToken() != ')') {
+            args.push(this.tokenizer.getCurrentToken());
+        }
+
+        this.tokenizer.getNextToken(); // Eat ;
+
+        return MethodInvocation.create(methodName, args);
+    }
 };
