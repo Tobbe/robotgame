@@ -35,7 +35,9 @@
         <p>
             All move-functions take one parameter, called <code>steps</code>.
             The type of this parameter is <code>int</code>, which just means
-            that it should be a whole number, written using digits.
+            that it should be a whole number, written using digits. If the
+            parameter is omitted it is assumed that just one step in the given
+            direction should be taken.
         </p>
         <p>
             For example, the following program would make the robot walk two
@@ -43,7 +45,7 @@
         </p>
         <code>
             robot.moveRight(2);<br>
-            robot.moveUp(1);
+            robot.moveUp();
         </code>
         <p>
             When the robot stands on a button it can push it using the
