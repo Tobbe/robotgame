@@ -1,3 +1,34 @@
+// TODO-list
+// [ ] Document has<Color>Key() methods
+// [ ] Document "if"-support
+// [ ] Don't walk through walls
+// [ ] Add openDoor() method
+// [ ] Don't walk through closed doors
+// [ ] Show "open door" graphic when door is open
+// [ ] Add status area
+//       [ ] Wall (move<Direction>)
+//       [ ] Closed door (move<Direction>)
+//       [ ] Missing key (openDoor)
+//       [ ] No button to push (pushButton)
+//       [ ] No chest to open (openChest)
+//       [ ] Found <Key color> key (openChest)
+// [ ] Change robot graphics when picking up key
+// [ ] Spash message when completing level
+// [ ] Syntax check robot script input
+//       [ ] Error message when parsing
+//       [ ] Show error in status area
+// [ ] `loop` support
+//       [ ] Level that is just `loop { <everything }`
+//       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
+// [ ] Document `loop`
+// [ ] Documentation depends on level (implement using css classes and js)
+// [ ] `count`/`getCount` support
+// [ ] 'loop (cond)' support
+//       [ ] Level that requires use of `loop (cond)`
+// [ ] Document `count` and `loop (cond)`
+// [ ] Connect with hardware (RasPi)
+// [ ] Split source into several files
+// [ ] Support for functions
 var robot;
 var now;
 var deltaTime;
