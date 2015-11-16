@@ -494,7 +494,7 @@ MethodInvocation.create = function (name, args) {
 
 function Tokenizer(code) {
     this.tokens = code
-        .split(/([().;])|[ \n]/)
+        .split(/([().])|[; \n]/)
         .filter(function (item) { return item; });
     this.currentToken = this.tokens[0];
 }
@@ -523,8 +523,6 @@ Parser.prototype.parseMethodInvocation = function () {
         while (this.tokenizer.getNextToken() != ')') {
             args.push(this.tokenizer.getCurrentToken());
         }
-
-        this.tokenizer.getNextToken(); // Eat ;
 
         return MethodInvocation.create(methodName, args);
     }
