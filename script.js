@@ -93,6 +93,8 @@ var currentLevel = -1;
 
 var gameState = 'MENU';
 
+var memory = {};
+
 $(function () {
     attachClickHandlers();
     drawGameMenu();
@@ -309,7 +311,13 @@ function buildAst() {
     var currentToken;
 
     while (!!(currentToken = tokenizer.getNextToken())) {
-        ast.newLevelChild(parser.parseMethodInvocation());
+        var instruction = parser.parseMethodInvocation();
+
+        if (!instruction) {
+            instruction = parser.parseConditionalStatement();
+        }
+
+        ast.newLevelChild(instruction);
     }
 
     return ast;
@@ -346,8 +354,9 @@ function update(deltaTime) {
     }
 
     var tileCoords = robot.currentTileCoords();
+    var currentInstruction = (robot.currentInstruction || '').split(' ');
 
-    switch (robot.currentInstruction) {
+    switch (currentInstruction[0]) {
         case 'right':
             robot.dx = 1;
             move();
@@ -394,6 +403,26 @@ function update(deltaTime) {
 
             robot.instructionCompleted = true;
             break;
+        case 'hasRedKey':
+            memory.retVal = robot.key === 'red';
+            robot.currentInstruction = nextInstruction();
+            return;
+        case 'hasGreenKey':
+            memory.retVal = robot.key === 'green';
+            robot.currentInstruction = nextInstruction();
+            return;
+        case 'hasBlueKey':
+            memory.retVal = robot.key === 'blue';
+            robot.currentInstruction = nextInstruction();
+            return;
+        case 'cond':
+            if (memory.retVal) {
+                nextInstruction.instructionArray.unshift(currentInstruction[1]);
+            }
+
+            robot.currentInstruction = nextInstruction();
+
+            return;
     }
 
     if (robot.instructionCompleted) {
@@ -492,6 +521,19 @@ MethodInvocation.create = function (name, args) {
     return methodInvocation;
 };
 
+function ConditionalStatement(methodInvocation, ifPart) {
+    this.methodInvocation = methodInvocation;
+    this.ifPart = ifPart;
+}
+
+ConditionalStatement.prototype.toArray = function () {
+    var array = this.methodInvocation.toArray();
+    array.push('cond ' + this.ifPart.toArray()[0]);
+
+    return array;
+};
+
+
 function Tokenizer(code) {
     this.tokens = code
         .split(/([().])|[; \n]/)
@@ -527,3 +569,20 @@ Parser.prototype.parseMethodInvocation = function () {
         return MethodInvocation.create(methodName, args);
     }
 };
+
+Parser.prototype.parseConditionalStatement = function () {
+    var token = this.tokenizer.getCurrentToken();
+
+    if (token === 'if' && this.tokenizer.getNextToken() === '(') {
+        this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
+        var methodInvocation = this.parseMethodInvocation();
+        this.tokenizer.getNextToken(); // Eat ')'
+        this.tokenizer.getNextToken(); // Eat '{'
+        this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
+        var ifPart = this.parseMethodInvocation();
+        this.tokenizer.getNextToken(); // Eat '}'
+
+        return new ConditionalStatement(methodInvocation, ifPart);
+    }
+};
+
