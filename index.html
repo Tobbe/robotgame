@@ -33,7 +33,10 @@
             robot.openChest();<br>
             robot.hasRedKey();<br>
             robot.hasGreenKey();<br>
-            robot.hasBlueKey();
+            robot.hasBlueKey();<br>
+            if (robot.has&lt;Color&gt;Key()) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
+            }
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -65,6 +68,14 @@
             robot has the required key the <code>hasRedKey</code>,
             <code>hasGreenKey</code> and <code>hasBlueKey</code> methods should be
             used.
+        </p>
+        <p>
+            The <code>has&lt;Color&gt;Key</code> methods described above will
+            most likely be used together with the <code>if</code> statement.
+            The <code>if</code> statement takes a method call that returns
+            <code>true</code> or <code>false</code> as a parameter, and if
+            the call returns true the single instruction inside the <code>
+            if</code> statement is executed.
         </p>
     </div>
 

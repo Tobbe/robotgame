@@ -1,6 +1,6 @@
 // TODO-list
 // [x] Document has<Color>Key() methods
-// [ ] Document "if"-support
+// [x] Document "if"-support
 // [ ] Don't walk through walls
 // [ ] Add openDoor() method
 // [ ] Don't walk through closed doors
