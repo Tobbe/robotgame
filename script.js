@@ -14,6 +14,7 @@
 //       [ ] Found <Key color> key (openChest)
 // [ ] Change robot graphics when picking up key
 // [ ] Spash message when completing level
+// [ ] Handle finishing last level
 // [ ] Syntax check robot script input
 //       [ ] Error message when parsing
 //       [ ] Show error in status area
