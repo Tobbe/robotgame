@@ -30,7 +30,10 @@
             robot.moveUp(int steps);<br>
             robot.moveDown(int steps);<br>
             robot.pushButton();<br>
-            robot.openChest();
+            robot.openChest();<br>
+            robot.hasRedKey();<br>
+            robot.hasGreenKey();<br>
+            robot.hasBlueKey();
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -56,6 +59,12 @@
             When the robot stands on a chest it can open it using the
             <code>openChest</code> function. Whatever is in the chest will be
             collected by the robot. This function takes no parameters.
+        </p>
+        <p>
+            To open red, green and blue doors a key is needed. To check if the
+            robot has the required key the <code>hasRedKey</code>,
+            <code>hasGreenKey</code> and <code>hasBlueKey</code> methods should be
+            used.
         </p>
     </div>
 
