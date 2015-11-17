@@ -4,7 +4,7 @@
 // [x] Don't walk through walls
 // [x] Add openDoor() method
 // [x] Don't walk through closed doors
-// [ ] Show "open door" graphic when door is open
+// [x] Show "open door" graphic when door is open
 // [ ] Add status area
 //       [ ] Wall (move<Direction>)
 //       [ ] Closed door (move<Direction>)
@@ -191,7 +191,7 @@ function drawPlayingField() {
         }
     }
 
-    function drawTile(context, tile, x, y) {
+    function drawTile(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
             var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
             var itemElement = $(imgStr);
@@ -200,6 +200,7 @@ function drawPlayingField() {
             $('.game_area').append(itemElement);
         }
 
+        var door;
         var tileOpenings = parseInt(tile[0], 16);
 
         if (tileOpenings === 0) {
@@ -247,15 +248,30 @@ function drawPlayingField() {
         }
 
         if (tile[1] === 'D') {
-            drawItem('door_red', x, y);
+            door = levels[currentLevel].doors[fieldItem.index];
+            if (!door.open) {
+                drawItem('door_red', x, y);
+            } else {
+                drawItem('door_red_open', x, y);
+            }
         }
 
         if (tile[1] === 'E') {
-            drawItem('door_green', x, y);
+            door = levels[currentLevel].doors[fieldItem.index];
+            if (!door.open) {
+                drawItem('door_green', x, y);
+            } else {
+                drawItem('door_green_open', x, y);
+            }
         }
 
         if (tile[1] === 'F') {
-            drawItem('door_blue', x, y);
+            door = levels[currentLevel].doors[fieldItem.index];
+            if (!door.open) {
+                drawItem('door_blue', x, y);
+            } else {
+                drawItem('door_blue_open', x, y);
+            }
         }
 
         context.stroke();
@@ -268,7 +284,8 @@ function drawPlayingField() {
 
     levels[currentLevel].field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
-            drawTile(context, tile, tileIndex * 68 + 1, lineIndex * 68 + 1);
+            var item = levels[currentLevel].items[lineIndex][tileIndex];
+            drawTile(context, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
 
@@ -478,6 +495,9 @@ function update(deltaTime) {
                 } else if (tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
                 }
+
+                $('.field_item').remove();
+                drawPlayingField();
             }
 
             robot.instructionCompleted = true;
