@@ -2,8 +2,8 @@
 // [x] Document has<Color>Key() methods
 // [x] Document "if"-support
 // [x] Don't walk through walls
-// [ ] Add openDoor() method
-// [ ] Don't walk through closed doors
+// [x] Add openDoor() method
+// [x] Don't walk through closed doors
 // [ ] Show "open door" graphic when door is open
 // [ ] Add status area
 //       [ ] Wall (move<Direction>)
@@ -108,6 +108,18 @@ levels[2].items[5][5] = {
         key: 'buttons',
         index: '1'
     };
+levels[2].items[0][3] = {
+        key: 'doors',
+        index: 0
+    };
+levels[2].items[1][3] = {
+        key: 'doors',
+        index: 1
+    };
+levels[2].items[2][3] = {
+        key: 'doors',
+        index: 2
+    };
 levels[2].leds = [{on: false}, {on: false}];
 levels[2].buttons = [{
         controlls: {
@@ -120,6 +132,7 @@ levels[2].buttons = [{
             index: 1
         }
     }];
+levels[2].doors = [{open: false}, {open: false}, {open: false}];
 var currentLevel = -1;
 
 var gameState = 'MENU';
@@ -377,16 +390,21 @@ function update(deltaTime) {
         var tileCoords = robot.currentTileCoords();
         var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
         var tileOpenings = parseInt(tile[0], 16);
+        var item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+        var closedDoor = false;
+        if (item && item.key === 'doors') {
+            closedDoor = !levels[currentLevel].doors[item.index].open;
+        }
 
         switch (direction) {
             case 'up':
-                return tileOpenings & 1;
+                return !closedDoor && tileOpenings & 1;
             case 'right':
-                return tileOpenings & 2;
+                return !closedDoor && tileOpenings & 2;
             case 'down':
-                return tileOpenings & 4;
+                return !closedDoor && tileOpenings & 4;
             case 'left':
-                return tileOpenings & 8;
+                return !closedDoor && tileOpenings & 8;
         }
     }
 
@@ -407,6 +425,7 @@ function update(deltaTime) {
 
     var tileCoords = robot.currentTileCoords();
     var currentInstruction = (robot.currentInstruction || '').split(' ');
+    var item;
 
     switch (currentInstruction[0]) {
         case 'right':
@@ -429,7 +448,7 @@ function update(deltaTime) {
             move();
             break;
         case 'pushButton':
-            var item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
             if (item.key === 'buttons') {
                 var button = levels[currentLevel].buttons[item.index];
                 var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
@@ -447,13 +466,17 @@ function update(deltaTime) {
             break;
         case 'openDoor':
             var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
+            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            if (item && item.key === 'doors') {
+                var door = levels[currentLevel].doors[item.index];
 
-            if (tile[1] === 'D' && robot.key === 'red') {
-                console.log('open door');
-            } else if (tile[1] === 'E' && robot.key === 'green') {
-                console.log('open door');
-            } else if (tile[1] === 'F' && robot.key === 'blue') {
-                console.log('open door');
+                if (tile[1] === 'D' && robot.key === 'red') {
+                    door.open = true;
+                } else if (tile[1] === 'E' && robot.key === 'green') {
+                    door.open = true;
+                } else if (tile[1] === 'F' && robot.key === 'blue') {
+                    door.open = true;
+                }
             }
 
             robot.instructionCompleted = true;
