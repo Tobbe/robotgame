@@ -1,7 +1,7 @@
 // TODO-list
 // [x] Document has<Color>Key() methods
 // [x] Document "if"-support
-// [ ] Don't walk through walls
+// [x] Don't walk through walls
 // [ ] Add openDoor() method
 // [ ] Don't walk through closed doors
 // [ ] Show "open door" graphic when door is open
@@ -373,6 +373,27 @@ function update(deltaTime) {
         return true;
     }
 
+    function freePassage(direction) {
+        var tileCoords = robot.currentTileCoords();
+        var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
+        var tileOpenings = parseInt(tile[0], 16);
+
+        switch (direction) {
+            case 'up':
+                return tileOpenings & 1;
+            case 'right':
+                return tileOpenings & 2;
+            case 'down':
+                return tileOpenings & 4;
+            case 'left':
+                return tileOpenings & 8;
+        }
+    }
+
+    function robotIsMoving() {
+        return robot.dx !== 0 || robot.dy !== 0;
+    }
+
     function move() {
         robot.x += robot.dx * robot.speed;
         robot.y += robot.dy * robot.speed;
@@ -389,19 +410,22 @@ function update(deltaTime) {
 
     switch (currentInstruction[0]) {
         case 'right':
-            robot.dx = 1;
-            move();
-            break;
         case 'left':
-            robot.dx = -1;
-            move();
-            break;
         case 'down':
-            robot.dy = 1;
-            move();
-            break;
         case 'up':
-            robot.dy = -1;
+            if (!robotIsMoving()) {
+                if (freePassage(currentInstruction[0])) {
+                    switch (currentInstruction[0]) {
+                        case 'right': robot.dx = 1;  break;
+                        case 'left':  robot.dx = -1; break;
+                        case 'down':  robot.dy = 1;  break;
+                        case 'up':    robot.dy = -1; break;
+                    }
+                } else {
+                    robot.currentInstruction = nextInstruction();
+                    return;
+                }
+            }
             move();
             break;
         case 'pushButton':
