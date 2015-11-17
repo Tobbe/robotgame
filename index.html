@@ -37,6 +37,7 @@
             if (robot.has&lt;Color&gt;Key()) {<br>
             &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
             }
+            robot.openDoor();
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -76,6 +77,11 @@
             <code>true</code> or <code>false</code> as a parameter, and if
             the call returns true the single instruction inside the <code>
             if</code> statement is executed.
+        </p>
+        <p>
+            When the robot stands on a door it can open it using the <code>
+            openDoor</code> method. If the door is red, green or blue a key
+            with the same color as the door is needed.
         </p>
     </div>
 
