@@ -12,7 +12,7 @@
 //       [ ] No button to push (pushButton)
 //       [ ] No chest to open (openChest)
 //       [ ] Found <Key color> key (openChest)
-// [ ] Change robot graphics when picking up key
+// [x] Change robot graphics when picking up key
 // [ ] Spash message when completing level
 // [ ] Handle finishing last level
 // [ ] Syntax check robot script input
@@ -501,6 +501,7 @@ function update(deltaTime) {
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
             robot.key = foundKey;
             console.log('You collected a ' + foundKey + ' key!');
+            robot[0].src = 'robot_key_' + foundKey + '.png';
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
@@ -511,10 +512,13 @@ function update(deltaTime) {
 
                 if (tile[1] === 'D' && robot.key === 'red') {
                     door.open = true;
+                    robot[0].src = 'robot.png';
                 } else if (tile[1] === 'E' && robot.key === 'green') {
                     door.open = true;
+                    robot[0].src = 'robot.png';
                 } else if (tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
+                    robot[0].src = 'robot.png';
                 }
 
                 $('.field_item').remove();
