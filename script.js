@@ -30,6 +30,7 @@
 // [ ] Connect with hardware (RasPi)
 // [ ] Split source into several files
 // [ ] Support for functions
+// [ ] When press restart, restart the current level
 var robot;
 var now;
 var deltaTime;
@@ -320,10 +321,14 @@ function setPlayerPosition(coords) {
 }
 
 function attachClickHandlers() {
-    $('input').on('click', function() {
+    $('input.run').on('click', function() {
         ast = buildAst();
         robot.currentInstruction = nextInstruction();
         robot.instructionCompleted = false;
+    });
+
+    $('input.restart').on('click', function() {
+        location.reload(false);
     });
 
     $('.game_menu').on('click', function() {
@@ -348,6 +353,7 @@ function changeGameState() {
         drawPlayingField();
         setPlayerPosition(getStartPosition());
         $('.game_menu').hide();
+        $('input.restart').show();
         gameState = 'GAME';
     } else {
         $('.game_menu').show();
