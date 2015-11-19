@@ -5,13 +5,13 @@
 // [x] Add openDoor() method
 // [x] Don't walk through closed doors
 // [x] Show "open door" graphic when door is open
-// [ ] Add status area
-//       [ ] Wall (move<Direction>)
+// [x] Add status area
+//       [x] Wall (move<Direction>)
 //       [ ] Closed door (move<Direction>)
 //       [ ] Missing key (openDoor)
 //       [ ] No button to push (pushButton)
 //       [ ] No chest to open (openChest)
-//       [ ] Found <Key color> key (openChest)
+//       [x] Found <Key color> key (openChest)
 // [ ] Change robot graphics when picking up key
 // [ ] Spash message when completing level
 // [ ] Handle finishing last level
@@ -139,6 +139,20 @@ var currentLevel = -1;
 var gameState = 'MENU';
 
 var memory = {};
+var statusMessage = '';
+function setStatusMessage(msg) {
+    statusMessage = msg;
+    drawPlayingField();
+    clearTimeout(setStatusMessage.timoutId);
+    setStatusMessage.timeoutId = setTimeout(function () {
+        statusMessage = "";
+        drawPlayingField();
+    }, 3000);
+}
+
+function getStatusMessage() {
+    return statusMessage;
+}
 
 $(function () {
     attachClickHandlers();
@@ -189,6 +203,31 @@ function drawPlayingField() {
             context.strokeStyle = '#cfcf32';
             context.stroke();
         }
+    }
+
+    function roundedRect(context, x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        context.beginPath();
+        context.moveTo(x+r - 1, y);
+        context.arcTo(x+w, y,   x+w, y+h, r);
+        context.arcTo(x+w, y+h, x,   y+h, r);
+        context.arcTo(x,   y+h, x,   y,   r);
+        context.arcTo(x,   y,   x+w, y,   r);
+        context.fill();
+        context.stroke();
+        context.closePath();
+    }
+
+    function drawStatusAreaBorder(context, x, y) {
+        context.strokeStyle = '#777';
+        context.fillStyle = 'white';
+        roundedRect(context, x, y, 300, 28, 4);
+
+        context.fillStyle = '#000';
+        context.font = "16px Calibri";
+        console.log('statusMessage', statusMessage);
+        context.fillText(statusMessage, x + 6, y + 18);
     }
 
     function drawTile(context, tile, fieldItem, x, y) {
@@ -291,7 +330,8 @@ function drawPlayingField() {
 
     var statusAreaY = levels[currentLevel].field.length * 68 + 10;
     var statusAreaX = levels[currentLevel].field[0].length * 68;
-    drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 12);
+    drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 16);
+    drawStatusAreaBorder(context, 4, statusAreaY + 2);
 }
 
 function createPlayer(startCoordinates) {
@@ -459,6 +499,7 @@ function update(deltaTime) {
                         case 'up':    robot.dy = -1; break;
                     }
                 } else {
+                    setStatusMessage("You can't walk through walls");
                     robot.currentInstruction = nextInstruction();
                     return;
                 }
@@ -479,7 +520,7 @@ function update(deltaTime) {
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
             robot.key = foundKey;
-            console.log('You collected a ' + foundKey + ' key!');
+            setStatusMessage("You collected a " + foundKey + " key!");
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
