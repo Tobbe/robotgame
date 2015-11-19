@@ -1,13 +1,9 @@
 
-h1 {
+h1, p {
     font-family: ‘Metrophobic’, Arial, serif; font-weight: 400;
 }
 
-p {
-    font-family: ‘Metrophobic’, Arial, serif; font-weight: 400;
-}
-
-input[type=button] {
+input {
     /* button style */
 }
 
@@ -19,8 +15,6 @@ input[type=button] {
 
 .game_menu, .field {
     position: absolute;
-    top: 0;
-    left: 0;
 }
 
 .game_menu {
@@ -29,7 +23,6 @@ input[type=button] {
 
 form {
     position: absolute;
-    top: 0;
     left: 430px;
 }
 
@@ -46,7 +39,6 @@ input {
 
 .instructions {
     position: absolute;
-    top: 0px;
     left: 850px;
     margin-left: 10px;
     margin-right: 10px;
@@ -57,8 +49,8 @@ input {
 }
 
 .info-area {
-    background-color: rgb(252,221,255);
-    border: solid 1px rgb(255,0,220);
+    background-color: #FCDDFF;
+    border: solid 1px #FF00DC;
     display: inline-block;
     padding: 10px;
 }

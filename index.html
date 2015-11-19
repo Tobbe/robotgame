@@ -26,23 +26,21 @@
             To control the robot you have to give it programming instructions.
             The available instructions are:
         </p>
-        <div class="info-area">
-            <code>
-                robot.moveRight(int steps);<br>
-                robot.moveLeft(int steps);<br>
-                robot.moveUp(int steps);<br>
-                robot.moveDown(int steps);<br>
-                robot.pushButton();<br>
-                robot.openChest();<br>
-                robot.hasRedKey();<br>
-                robot.hasGreenKey();<br>
-                robot.hasBlueKey();<br>
-                if (robot.has&lt;Color&gt;Key()) {<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
-                }
-                robot.openDoor();
-            </code>
-        </div>
+        <code class="info-area">
+            robot.moveRight(int steps);<br>
+            robot.moveLeft(int steps);<br>
+            robot.moveUp(int steps);<br>
+            robot.moveDown(int steps);<br>
+            robot.pushButton();<br>
+            robot.openChest();<br>
+            robot.hasRedKey();<br>
+            robot.hasGreenKey();<br>
+            robot.hasBlueKey();<br>
+            if (robot.has&lt;Color&gt;Key()) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
+            }
+            robot.openDoor();
+        </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
             The type of this parameter is <code>int</code>, which just means
@@ -54,12 +52,10 @@
             For example, the following program would make the robot walk two
             steps to the right, and then one step up.
         </p>
-        <div class="info-area">
-            <code>
-                robot.moveRight(2);<br>
-                robot.moveUp();
-            </code>
-        </div>
+        <code class="info-area">
+            robot.moveRight(2);<br>
+            robot.moveUp(1);
+        </code>
         <p>
             When the robot stands on a button it can push it using the
             <code>pushButton</code> function. This function takes no
