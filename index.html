@@ -7,6 +7,7 @@
     <title>Robot Game</title>
 
     <link rel="stylesheet" href="style.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
@@ -14,17 +15,17 @@
         <canvas class="game_menu" width="780" height="450"></canvas>
         <canvas class="field" width="410" height="450"></canvas>
         <form>
-            <input type="button" value="Run">
             <textarea cols="30" rows="20"></textarea>
+            <input type="button" value="Run">
         </form>
     </div>
     <div class="instructions">
-        <h2>Instructions</h2>
+        <h1>Instructions</h1>
         <p>
             To control the robot you have to give it programming instructions.
             The available instructions are:
         </p>
-        <code>
+        <code class="info-area">
             robot.moveRight(int steps);<br>
             robot.moveLeft(int steps);<br>
             robot.moveUp(int steps);<br>
@@ -50,7 +51,7 @@
             For example, the following program would make the robot walk two
             steps to the right, and then one step up.
         </p>
-        <code>
+        <code class="info-area">
             robot.moveRight(2);<br>
             robot.moveUp();
         </code>

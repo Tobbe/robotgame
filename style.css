@@ -1,3 +1,7 @@
+h1, p {
+    font-family: ‘Metrophobic’, Arial, serif;
+}
+
 .game_area {
     position: absolute;
     top: 20px;
@@ -6,8 +10,6 @@
 
 .game_menu, .field {
     position: absolute;
-    top: 0;
-    left: 0;
 }
 
 .game_menu {
@@ -17,12 +19,24 @@
 
 form {
     position: absolute;
-    top: 0;
     left: 430px;
 }
 
 input {
     display: block;
+    float: right;
+}
+
+textarea {
+    width: 224px;
+    height: 369px;
+}
+
+.info-area {
+    background-color: #fcddff;
+    border: solid 1px #ff00dc;
+    display: inline-block;
+    padding: 10px;
 }
 
 .player {
@@ -34,7 +48,9 @@ input {
 
 .instructions {
     position: absolute;
-    top: 470px;
+    left: 810px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .field_item {
