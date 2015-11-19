@@ -513,7 +513,7 @@ function update(deltaTime) {
             break;
         case 'pushButton':
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
-            if (item.key === 'buttons') {
+            if (item && item.key === 'buttons') {
                 var button = levels[currentLevel].buttons[item.index];
                 var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                 controlledItem.on = !controlledItem.on;
