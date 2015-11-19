@@ -13,7 +13,9 @@
 //       [ ] No chest to open (openChest)
 //       [x] Found <Key color> key (openChest)
 // [ ] Change robot graphics when picking up key
-// [ ] Spash message when completing level
+// [ ] Splash message when completing level
+// [ ] Disable code textarea when pressing "Run" button
+// [ ] Add "Retry" button
 // [ ] Handle finishing last level
 // [ ] Syntax check robot script input
 //       [ ] Error message when parsing
@@ -30,6 +32,9 @@
 // [ ] Connect with hardware (RasPi)
 // [ ] Split source into several files
 // [ ] Support for functions
+// [ ] Message queue for status msgs so that they are always shown 3 secs
+// [ ] Freeplay mode where you can enter commands one at a time and the
+//     robot follows them.  Used to interactivly controll the LEDs
 var robot;
 var now;
 var deltaTime;
