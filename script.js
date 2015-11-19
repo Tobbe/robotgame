@@ -447,6 +447,20 @@ function update(deltaTime) {
         }
     }
 
+    function robotPushAnimation(){
+        // Quick fix to make it work OK TODO: make it better
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_5.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "robot.png"; });
+    }
+
     var tileCoords = robot.currentTileCoords();
     var currentInstruction = (robot.currentInstruction || '').split(' ');
     var item;
@@ -472,8 +486,9 @@ function update(deltaTime) {
             move();
             break;
         case 'pushButton':
+            robotPushAnimation();
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
-            if (item.key === 'buttons') {
+            if (item && item.key === 'buttons') {
                 var button = levels[currentLevel].buttons[item.index];
                 var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                 controlledItem.on = !controlledItem.on;

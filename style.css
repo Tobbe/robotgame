@@ -3,6 +3,10 @@ h1, p {
     font-family: ‘Metrophobic’, Arial, serif; font-weight: 400;
 }
 
+.hidden {
+    display: none;
+}
+
 /* Button is generated from http://www.bestcssbuttongenerator.com/ */
 input {
     background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #fcddff), color-stop(1, #cd7cd6));
