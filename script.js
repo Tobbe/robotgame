@@ -8,8 +8,8 @@
 // [x] Add status area
 //       [x] Wall (move<Direction>)
 //       [x] Closed door (move<Direction>)
-//       [ ] Missing key (openDoor)
-//       [ ] No button to push (pushButton)
+//       [x] Missing key (openDoor)
+//       [x] No button to push (pushButton)
 //       [ ] No chest to open (openChest)
 //       [x] Found <Key color> key (openChest)
 // [x] Change robot graphics when picking up key
@@ -524,6 +524,8 @@ function update(deltaTime) {
                 var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                 controlledItem.on = !controlledItem.on;
                 drawPlayingField();
+            } else {
+                setStatusMessage("No button found here");
             }
             robot.instructionCompleted = true;
             break;
@@ -546,10 +548,14 @@ function update(deltaTime) {
                         tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
                     robot[0].src = 'robot.png';
+                } else {
+                    setStatusMessage("You need the correct key to open this door");
                 }
 
                 $('.field_item').remove();
                 drawPlayingField();
+            } else {
+                setStatusMessage("There is no door");
             }
 
             robot.instructionCompleted = true;
