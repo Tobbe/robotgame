@@ -48,6 +48,12 @@ input:active {
     top: 1px;
 }
 
+input:disabled {
+    color: #888;
+    background: #f0f0f0;
+    border-color: #d9d9d9;
+}
+
 textarea {
     width: 224px;
     height: 364px;

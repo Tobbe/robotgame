@@ -14,7 +14,7 @@
 //       [x] Found <Key color> key (openChest)
 // [x] Change robot graphics when picking up key
 // [ ] Splash message when completing level
-// [ ] Disable code textarea when pressing "Run" button
+// [x] Disable code textarea when pressing "Run" button
 // [ ] Add "Retry" button
 // [ ] Handle finishing last level
 // [ ] Syntax check robot script input
@@ -369,10 +369,12 @@ function setPlayerPosition(coords) {
 }
 
 function attachClickHandlers() {
-    $('input').on('click', function() {
+    $('input.run').on('click', function() {
         ast = buildAst();
         robot.currentInstruction = nextInstruction();
         robot.instructionCompleted = false;
+        $('textarea').prop("disabled", true);
+        $('input').prop("disabled", true);
     });
 
     $('.game_menu').on('click', function() {
