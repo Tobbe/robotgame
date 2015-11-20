@@ -12,7 +12,7 @@
 //       [ ] No button to push (pushButton)
 //       [ ] No chest to open (openChest)
 //       [x] Found <Key color> key (openChest)
-// [ ] Change robot graphics when picking up key
+// [x] Change robot graphics when picking up key
 // [ ] Splash message when completing level
 // [ ] Disable code textarea when pressing "Run" button
 // [ ] Add "Retry" button
@@ -525,6 +525,7 @@ function update(deltaTime) {
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
             robot.key = foundKey;
+            robot[0].src = 'robot_key_' + foundKey + '.png';
             setStatusMessage("You collected a " + foundKey + " key!");
             robot.instructionCompleted = true;
             break;
@@ -534,12 +535,11 @@ function update(deltaTime) {
             if (item && item.key === 'doors') {
                 var door = levels[currentLevel].doors[item.index];
 
-                if (tile[1] === 'D' && robot.key === 'red') {
+                if (tile[1] === 'D' && robot.key === 'red' ||
+                        tile[1] === 'E' && robot.key === 'green' ||
+                        tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
-                } else if (tile[1] === 'E' && robot.key === 'green') {
-                    door.open = true;
-                } else if (tile[1] === 'F' && robot.key === 'blue') {
-                    door.open = true;
+                    robot[0].src = 'robot.png';
                 }
 
                 $('.field_item').remove();
