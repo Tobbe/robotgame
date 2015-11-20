@@ -1,4 +1,3 @@
-
 h1, p {
     font-family: ‘Metrophobic’, Arial, serif; font-weight: 400;
 }
@@ -53,14 +52,9 @@ input.run {
 
 input.restart {
     display: none;
-    left: 20px;
     position: absolute;
-    top: 436px;
-}
-
-textarea {
-    width: 224px;
-    height: 369px;
+    top: 494px;
+    left: 20px;
 }
 
 .game_area {
@@ -83,8 +77,16 @@ form {
     left: 430px;
 }
 
-input {
-    display: block;
+textarea {
+    width: 224px;
+    height: 364px;
+}
+
+.info-area {
+    background-color: #fcddff;
+    border: solid 1px #ff00dc;
+    display: inline-block;
+    padding: 10px;
 }
 
 .player {
@@ -103,11 +105,4 @@ input {
 
 .field_item {
     position: absolute;
-}
-
-.info-area {
-    background-color: #FCDDFF;
-    border: solid 1px #FF00DC;
-    display: inline-block;
-    padding: 10px;
 }

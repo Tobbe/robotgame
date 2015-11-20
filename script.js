@@ -5,15 +5,17 @@
 // [x] Add openDoor() method
 // [x] Don't walk through closed doors
 // [x] Show "open door" graphic when door is open
-// [ ] Add status area
-//       [ ] Wall (move<Direction>)
-//       [ ] Closed door (move<Direction>)
-//       [ ] Missing key (openDoor)
-//       [ ] No button to push (pushButton)
-//       [ ] No chest to open (openChest)
-//       [ ] Found <Key color> key (openChest)
+// [x] Add status area
+//       [x] Wall (move<Direction>)
+//       [x] Closed door (move<Direction>)
+//       [x] Missing key (openDoor)
+//       [x] No button to push (pushButton)
+//       [x] No chest to open (openChest)
+//       [x] Found <Key color> key (openChest)
 // [x] Change robot graphics when picking up key
-// [ ] Spash message when completing level
+// [ ] Splash message when completing level
+// [ ] Disable code textarea when pressing "Run" button
+// [ ] Add "Retry" button
 // [ ] Handle finishing last level
 // [ ] Syntax check robot script input
 //       [ ] Error message when parsing
@@ -31,6 +33,9 @@
 // [ ] Split source into several files
 // [ ] Support for functions
 // [ ] When press restart, restart the current level
+// [ ] Message queue for status msgs so that they are always shown 3 secs
+// [ ] Freeplay mode where you can enter commands one at a time and the
+//     robot follows them.  Used to interactivly controll the LEDs
 var robot;
 var now;
 var deltaTime;
@@ -122,6 +127,10 @@ levels[2].items[2][3] = {
         key: 'doors',
         index: 2
     };
+levels[2].items[1][1] = {
+        key: 'chests',
+        index: 0
+    };
 levels[2].leds = [{on: false}, {on: false}];
 levels[2].buttons = [{
         controlls: {
@@ -135,11 +144,26 @@ levels[2].buttons = [{
         }
     }];
 levels[2].doors = [{open: false}, {open: false}, {open: false}];
+levels[2].chests = [{open: false}];
 var currentLevel = -1;
 
 var gameState = 'MENU';
 
 var memory = {};
+var statusMessage = '';
+function setStatusMessage(msg) {
+    statusMessage = msg;
+    drawPlayingField();
+    clearTimeout(setStatusMessage.timoutId);
+    setStatusMessage.timeoutId = setTimeout(function () {
+        statusMessage = "";
+        drawPlayingField();
+    }, 3000);
+}
+
+function getStatusMessage() {
+    return statusMessage;
+}
 
 $(function () {
     attachClickHandlers();
@@ -190,6 +214,30 @@ function drawPlayingField() {
             context.strokeStyle = '#cfcf32';
             context.stroke();
         }
+    }
+
+    function roundedRect(context, x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        context.beginPath();
+        context.moveTo(x+r - 1, y);
+        context.arcTo(x+w, y,   x+w, y+h, r);
+        context.arcTo(x+w, y+h, x,   y+h, r);
+        context.arcTo(x,   y+h, x,   y,   r);
+        context.arcTo(x,   y,   x+w, y,   r);
+        context.fill();
+        context.stroke();
+        context.closePath();
+    }
+
+    function drawStatusAreaBorder(context, x, y) {
+        context.strokeStyle = '#777';
+        context.fillStyle = 'white';
+        roundedRect(context, x, y, 300, 28, 4);
+
+        context.fillStyle = '#000';
+        context.font = "16px Calibri";
+        context.fillText(statusMessage, x + 6, y + 18);
     }
 
     function drawTile(context, tile, fieldItem, x, y) {
@@ -292,7 +340,8 @@ function drawPlayingField() {
 
     var statusAreaY = levels[currentLevel].field.length * 68 + 10;
     var statusAreaX = levels[currentLevel].field[0].length * 68;
-    drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 12);
+    drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 16);
+    drawStatusAreaBorder(context, 4, statusAreaY + 2);
 }
 
 function createPlayer(startCoordinates) {
@@ -410,25 +459,28 @@ function update(deltaTime) {
         return true;
     }
 
-    function freePassage(direction) {
+    function standingOnClosedDoor() {
         var tileCoords = robot.currentTileCoords();
-        var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
-        var tileOpenings = parseInt(tile[0], 16);
         var item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
         var closedDoor = false;
+
         if (item && item.key === 'doors') {
             closedDoor = !levels[currentLevel].doors[item.index].open;
         }
 
+        return closedDoor;
+    }
+
+    function movingThroughWall(direction) {
+        var tileCoords = robot.currentTileCoords();
+        var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
+        var tileOpenings = parseInt(tile[0], 16);
+
         switch (direction) {
-            case 'up':
-                return !closedDoor && tileOpenings & 1;
-            case 'right':
-                return !closedDoor && tileOpenings & 2;
-            case 'down':
-                return !closedDoor && tileOpenings & 4;
-            case 'left':
-                return !closedDoor && tileOpenings & 8;
+            case 'up':    return !(tileOpenings & 1);
+            case 'right': return !(tileOpenings & 2);
+            case 'down':  return !(tileOpenings & 4);
+            case 'left':  return !(tileOpenings & 8);
         }
     }
 
@@ -471,16 +523,21 @@ function update(deltaTime) {
         case 'down':
         case 'up':
             if (!robotIsMoving()) {
-                if (freePassage(currentInstruction[0])) {
-                    switch (currentInstruction[0]) {
-                        case 'right': robot.dx = 1;  break;
-                        case 'left':  robot.dx = -1; break;
-                        case 'down':  robot.dy = 1;  break;
-                        case 'up':    robot.dy = -1; break;
-                    }
-                } else {
+                if (movingThroughWall(currentInstruction[0])) {
+                    setStatusMessage("You can't walk through walls");
                     robot.currentInstruction = nextInstruction();
                     return;
+                } else if (standingOnClosedDoor()) {
+                    setStatusMessage("You banged straight in to a closed door");
+                    robot.currentInstruction = nextInstruction();
+                    return;
+                }
+
+                switch (currentInstruction[0]) {
+                    case 'right': robot.dx = 1;  break;
+                    case 'left':  robot.dx = -1; break;
+                    case 'down':  robot.dy = 1;  break;
+                    case 'up':    robot.dy = -1; break;
                 }
             }
             move();
@@ -493,15 +550,28 @@ function update(deltaTime) {
                 var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                 controlledItem.on = !controlledItem.on;
                 drawPlayingField();
+            } else {
+                setStatusMessage("No button found here");
             }
             robot.instructionCompleted = true;
             break;
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
-            robot.key = foundKey;
-            console.log('You collected a ' + foundKey + ' key!');
-            robot[0].src = 'robot_key_' + foundKey + '.png';
+            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            if (item && item.key === 'chests') {
+                var chest = levels[currentLevel].chests[item.index];
+                if (!chest.open) {
+                    chest.open = true;
+                    robot.key = foundKey;
+                    robot[0].src = 'robot_key_' + foundKey + '.png';
+                    setStatusMessage("You collected a " + foundKey + " key!");
+                } else {
+                    setStatusMessage("You can't open an already open chest");
+                }
+            } else {
+                setStatusMessage("Nice try, but there is no chest here");
+            }
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
@@ -509,20 +579,19 @@ function update(deltaTime) {
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'doors') {
                 var door = levels[currentLevel].doors[item.index];
-
-                if (tile[1] === 'D' && robot.key === 'red') {
+                if (tile[1] === 'D' && robot.key === 'red' ||
+                        tile[1] === 'E' && robot.key === 'green' ||
+                        tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
                     robot[0].src = 'robot.png';
-                } else if (tile[1] === 'E' && robot.key === 'green') {
-                    door.open = true;
-                    robot[0].src = 'robot.png';
-                } else if (tile[1] === 'F' && robot.key === 'blue') {
-                    door.open = true;
-                    robot[0].src = 'robot.png';
+                } else {
+                    setStatusMessage("You need the correct key to open this door");
                 }
 
                 $('.field_item').remove();
                 drawPlayingField();
+            } else {
+                setStatusMessage("There is no door");
             }
 
             robot.instructionCompleted = true;
