@@ -13,7 +13,7 @@
 //       [x] No chest to open (openChest)
 //       [x] Found <Key color> key (openChest)
 // [x] Change robot graphics when picking up key
-// [ ] Splash message when completing level
+// [x] Splash message when completing level
 // [x] Disable code textarea when pressing "Run" button
 // [ ] Add "Retry" button
 // [ ] Handle finishing last level
@@ -199,6 +199,16 @@ function drawGameMenu() {
     img.src = "game_menu.png";
 }
 
+function drawLevelCompletedSplash() {
+    var context = $('.level_completed_splash')[0].getContext('2d');
+    var img = new Image();
+    img.src = "level_completed.png";
+
+    img.onload = function () {
+        context.drawImage(img, 175, 110);
+    };
+}
+
 function drawPlayingField() {
     function drawLEDs(ledCount, context, x, y) {
         for (var i = 0; i < ledCount; i++) {
@@ -377,7 +387,7 @@ function attachClickHandlers() {
         $('input').prop("disabled", true);
     });
 
-    $('.game_menu').on('click', function() {
+    $('.game_menu, .level_completed_splash').on('click', function() {
         changeGameState();
     });
 
@@ -399,12 +409,18 @@ function changeGameState() {
         drawPlayingField();
         setPlayerPosition(getStartPosition());
         $('.game_menu').hide();
+        $('.level_completed_splash').hide();
         gameState = 'GAME';
-    } else {
-        $('.game_menu').show();
-        drawGameMenu();
+    } else if (gameState === 'GAME') {
+        $('.level_completed_splash').show();
+        drawLevelCompletedSplash();
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
+        gameState = 'LEVEL_COMPLETED';
+    } else {
+        $('.level_completed_splash').hide();
+        $('.game_menu').show();
+        drawGameMenu();
         gameState = 'MENU';
     }
 }
@@ -623,6 +639,19 @@ function update(deltaTime) {
     }
 }
 
+function updateLevelCompleted(deltaTime) {
+    if (!updateLevelCompleted.timeToWait) {
+        updateLevelCompleted.timeToWait = 2000;
+    }
+
+    updateLevelCompleted.timeToWait -= deltaTime;
+
+    if (updateLevelCompleted.timeToWait <= 0) {
+        delete updateLevelCompleted.timeToWait;
+        changeGameState();
+    }
+}
+
 function render() {
     // The robot takes 100 steps when moving from one map tile to the next
     // Each map tile is 68 x 68 pixels
@@ -638,6 +667,8 @@ function frame() {
     if (gameState === 'GAME') {
         update(deltaTime);
         render(deltaTime);
+    } else if (gameState === 'LEVEL_COMPLETED') {
+        updateLevelCompleted(deltaTime);
     }
 
     last = now;

@@ -8,11 +8,11 @@ h1, p {
     left: 20px;
 }
 
-.game_menu, .field {
+.game_menu, .field, .level_completed_splash {
     position: absolute;
 }
 
-.game_menu {
+.game_menu, .level_completed_splash {
     z-index: 200;
     cursor: pointer;
 }
