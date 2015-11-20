@@ -10,7 +10,7 @@
 //       [x] Closed door (move<Direction>)
 //       [x] Missing key (openDoor)
 //       [x] No button to push (pushButton)
-//       [ ] No chest to open (openChest)
+//       [x] No chest to open (openChest)
 //       [x] Found <Key color> key (openChest)
 // [x] Change robot graphics when picking up key
 // [ ] Splash message when completing level
@@ -126,6 +126,10 @@ levels[2].items[2][3] = {
         key: 'doors',
         index: 2
     };
+levels[2].items[1][1] = {
+        key: 'chests',
+        index: 0
+    };
 levels[2].leds = [{on: false}, {on: false}];
 levels[2].buttons = [{
         controlls: {
@@ -139,6 +143,7 @@ levels[2].buttons = [{
         }
     }];
 levels[2].doors = [{open: false}, {open: false}, {open: false}];
+levels[2].chests = [{open: false}];
 var currentLevel = -1;
 
 var gameState = 'MENU';
@@ -532,9 +537,21 @@ function update(deltaTime) {
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
-            robot.key = foundKey;
-            robot[0].src = 'robot_key_' + foundKey + '.png';
-            setStatusMessage("You collected a " + foundKey + " key!");
+            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            if (item && item.key === 'chests') {
+                var chest = levels[currentLevel].chests[item.index];
+                if (!chest.open) {
+                    chest.open = true;
+                    robot.key = foundKey;
+                    robot[0].src = 'robot_key_' + foundKey + '.png';
+                    setStatusMessage("You collected a " + foundKey + " key!");
+                } else {
+                    setStatusMessage("You can't open an already open chest");
+                }
+            } else {
+                setStatusMessage("Nice try, but there is no chest here");
+            }
+
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
