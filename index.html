@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="style.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
 </head>
 
 <body>
@@ -16,10 +17,11 @@
         <canvas class="field" width="410" height="450"></canvas>
         <form>
             <textarea cols="30" rows="20" placeholder="Write your program here"></textarea>
-            <input type="button" value="Run">
-            <input type="reset" value="Clear">
+            <input type="button" class="run" value="Run" />
+            <input type="reset" class="reset" value="Clear" />
         </form>
     </div>
+    <input type="button" class="restart" value="Restart" />
     <div class="instructions">
         <h1>Instructions</h1>
         <p>
@@ -54,7 +56,7 @@
         </p>
         <code class="info-area">
             robot.moveRight(2);<br>
-            robot.moveUp();
+            robot.moveUp(1);
         </code>
         <p>
             When the robot stands on a button it can push it using the
@@ -89,5 +91,14 @@
 
     <script src="jquery-2.1.4.js"></script>
     <script src="script.js"></script>
+
+    <div class="hidden">
+        <!-- prefetch all pictures -->
+        <img src="img_push/robot_push_1.png">
+        <img src="img_push/robot_push_2.png">
+        <img src="img_push/robot_push_3.png">
+        <img src="img_push/robot_push_4.png">
+        <img src="img_push/robot_push_5.png">
+    </div>
 </body>
 </html>

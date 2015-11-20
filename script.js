@@ -32,6 +32,7 @@
 // [ ] Connect with hardware (RasPi)
 // [ ] Split source into several files
 // [ ] Support for functions
+// [ ] When press restart, restart the current level
 // [ ] Message queue for status msgs so that they are always shown 3 secs
 // [ ] Freeplay mode where you can enter commands one at a time and the
 //     robot follows them.  Used to interactivly controll the LEDs
@@ -369,10 +370,14 @@ function setPlayerPosition(coords) {
 }
 
 function attachClickHandlers() {
-    $('input').on('click', function() {
+    $('input.run').on('click', function() {
         ast = buildAst();
         robot.currentInstruction = nextInstruction();
         robot.instructionCompleted = false;
+    });
+
+    $('input.restart').on('click', function() {
+        location.reload(false);
     });
 
     $('.game_menu').on('click', function() {
@@ -397,6 +402,7 @@ function changeGameState() {
         drawPlayingField();
         setPlayerPosition(getStartPosition());
         $('.game_menu').hide();
+        $('input.restart').show();
         gameState = 'GAME';
     } else {
         $('.game_menu').show();
@@ -493,6 +499,20 @@ function update(deltaTime) {
         }
     }
 
+    function robotPushAnimation(){
+        // Quick fix to make it work OK TODO: make it better
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_5.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
+        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "robot.png"; });
+    }
+
     var tileCoords = robot.currentTileCoords();
     var currentInstruction = (robot.currentInstruction || '').split(' ');
     var item;
@@ -523,6 +543,7 @@ function update(deltaTime) {
             move();
             break;
         case 'pushButton':
+            robotPushAnimation();
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'buttons') {
                 var button = levels[currentLevel].buttons[item.index];
@@ -551,7 +572,6 @@ function update(deltaTime) {
             } else {
                 setStatusMessage("Nice try, but there is no chest here");
             }
-
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
@@ -559,7 +579,6 @@ function update(deltaTime) {
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'doors') {
                 var door = levels[currentLevel].doors[item.index];
-
                 if (tile[1] === 'D' && robot.key === 'red' ||
                         tile[1] === 'E' && robot.key === 'green' ||
                         tile[1] === 'F' && robot.key === 'blue') {
