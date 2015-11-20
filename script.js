@@ -7,7 +7,7 @@
 // [x] Show "open door" graphic when door is open
 // [x] Add status area
 //       [x] Wall (move<Direction>)
-//       [ ] Closed door (move<Direction>)
+//       [x] Closed door (move<Direction>)
 //       [ ] Missing key (openDoor)
 //       [ ] No button to push (pushButton)
 //       [ ] No chest to open (openChest)
@@ -231,7 +231,6 @@ function drawPlayingField() {
 
         context.fillStyle = '#000';
         context.font = "16px Calibri";
-        console.log('statusMessage', statusMessage);
         context.fillText(statusMessage, x + 6, y + 18);
     }
 
@@ -449,25 +448,28 @@ function update(deltaTime) {
         return true;
     }
 
-    function freePassage(direction) {
+    function standingOnClosedDoor() {
         var tileCoords = robot.currentTileCoords();
-        var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
-        var tileOpenings = parseInt(tile[0], 16);
         var item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
         var closedDoor = false;
+
         if (item && item.key === 'doors') {
             closedDoor = !levels[currentLevel].doors[item.index].open;
         }
 
+        return closedDoor;
+    }
+
+    function movingThroughWall(direction) {
+        var tileCoords = robot.currentTileCoords();
+        var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
+        var tileOpenings = parseInt(tile[0], 16);
+
         switch (direction) {
-            case 'up':
-                return !closedDoor && tileOpenings & 1;
-            case 'right':
-                return !closedDoor && tileOpenings & 2;
-            case 'down':
-                return !closedDoor && tileOpenings & 4;
-            case 'left':
-                return !closedDoor && tileOpenings & 8;
+            case 'up':    return !(tileOpenings & 1);
+            case 'right': return !(tileOpenings & 2);
+            case 'down':  return !(tileOpenings & 4);
+            case 'left':  return !(tileOpenings & 8);
         }
     }
 
@@ -496,17 +498,21 @@ function update(deltaTime) {
         case 'down':
         case 'up':
             if (!robotIsMoving()) {
-                if (freePassage(currentInstruction[0])) {
-                    switch (currentInstruction[0]) {
-                        case 'right': robot.dx = 1;  break;
-                        case 'left':  robot.dx = -1; break;
-                        case 'down':  robot.dy = 1;  break;
-                        case 'up':    robot.dy = -1; break;
-                    }
-                } else {
+                if (movingThroughWall(currentInstruction[0])) {
                     setStatusMessage("You can't walk through walls");
                     robot.currentInstruction = nextInstruction();
                     return;
+                } else if (standingOnClosedDoor()) {
+                    setStatusMessage("You banged straight in to a closed door");
+                    robot.currentInstruction = nextInstruction();
+                    return;
+                }
+
+                switch (currentInstruction[0]) {
+                    case 'right': robot.dx = 1;  break;
+                    case 'left':  robot.dx = -1; break;
+                    case 'down':  robot.dy = 1;  break;
+                    case 'up':    robot.dy = -1; break;
                 }
             }
             move();
