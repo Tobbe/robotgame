@@ -15,7 +15,7 @@
 // [x] Change robot graphics when picking up key
 // [x] Splash message when completing level
 // [x] Disable code textarea when pressing "Run" button
-// [ ] Add "Retry" button
+// [x] Add "Retry" button
 // [ ] Handle finishing last level
 // [ ] Syntax check robot script input
 //       [ ] Error message when parsing
@@ -24,6 +24,7 @@
 //       [ ] Level that is just `loop { <everything }`
 //       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
 // [ ] Document `loop`
+// [ ] Fix bug when clicking "Retry" while the robot is moving
 // [ ] Documentation depends on level (implement using css classes and js)
 // [ ] `count`/`getCount` support
 // [ ] 'loop (cond)' support
@@ -384,7 +385,18 @@ function attachClickHandlers() {
         robot.currentInstruction = nextInstruction();
         robot.instructionCompleted = false;
         $('textarea').prop("disabled", true);
-        $('input').prop("disabled", true);
+        $('input.clear').prop("disabled", true);
+        $('input.run, input.retry').toggleClass('hidden');
+    });
+
+    $('input.retry').on('click', function () {
+        $('input.run, input.retry').toggleClass('hidden');
+        $('input.clear').prop("disabled", false);
+        $('textarea').prop("disabled", false);
+        robot.dx = 0;
+        robot.dy = 0;
+        setPlayerPosition(getStartPosition());
+        delete nextInstruction.instructionArray;
     });
 
     $('.game_menu, .level_completed_splash').on('click', function() {
@@ -404,7 +416,12 @@ function changeGameState() {
     if (gameState === 'MENU') {
         delete nextInstruction.instructionArray;
         currentLevel++;
-        $('.game_area textarea').val('');
+        $('.game_area textarea')
+            .val('')
+            .prop("disabled", false);
+        $('input.clear').prop("disabled", false);
+        $('input.run').removeClass('hidden');
+        $('input.retry').addClass('hidden');
         $('.field_item').remove();
         drawPlayingField();
         setPlayerPosition(getStartPosition());

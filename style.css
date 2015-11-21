@@ -83,3 +83,7 @@ textarea {
 .field_item {
     position: absolute;
 }
+
+.hidden {
+    display: none;
+}
