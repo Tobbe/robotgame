@@ -40,8 +40,8 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
-var ast;
 var tokenizer;
+var program;
 
 /**
  * First position
@@ -401,8 +401,8 @@ function setPlayerPosition(coords) {
 
 function attachClickHandlers() {
     $('input.run').on('click', function() {
-        ast = buildAst();
-        robot.currentInstruction = nextInstruction();
+        program = new Program(buildAst());
+        robot.currentInstruction = program.nextInstruction();
         robot.instructionCompleted = false;
         $('textarea').prop("disabled", true);
         $('input.clear').prop("disabled", true);
@@ -416,7 +416,7 @@ function attachClickHandlers() {
         robot.dx = 0;
         robot.dy = 0;
         setPlayerPosition(getStartPosition());
-        delete nextInstruction.instructionArray;
+        program = new Program(buildAst());
     });
 
     $('.game_menu, .level_completed_splash').on('click', function() {
@@ -434,7 +434,6 @@ function attachClickHandlers() {
 
 function changeGameState() {
     if (gameState === 'MENU') {
-        delete nextInstruction.instructionArray;
         currentLevel++;
         $('.game_area textarea')
             .val('')
@@ -506,13 +505,18 @@ function buildAst() {
     return ast;
 }
 
-function nextInstruction() {
-    if (!nextInstruction.instructionArray) {
-        nextInstruction.instructionArray = ast.toArray();
-    }
-
-    return nextInstruction.instructionArray.shift();
+function Program(ast) {
+    this.instructionArray = ast.toArray();
+    this.instructionPointer = 0;
 }
+
+Program.prototype.nextInstruction = function () {
+    return this.instructionArray[this.instructionPointer++];
+};
+
+Program.prototype.insertInstruction = function (instruction) {
+    this.instructionArray.splice(this.instructionPointer, 0, instruction);
+};
 
 function update(deltaTime) {
     function levelCompleted() {
@@ -577,11 +581,11 @@ function update(deltaTime) {
             if (!robotIsMoving()) {
                 if (movingThroughWall(currentInstruction[0])) {
                     setStatusMessage("You can't walk through walls");
-                    robot.currentInstruction = nextInstruction();
+                    robot.currentInstruction = program.nextInstruction();
                     return;
                 } else if (standingOnClosedDoor()) {
                     setStatusMessage("You banged straight in to a closed door");
-                    robot.currentInstruction = nextInstruction();
+                    robot.currentInstruction = program.nextInstruction();
                     return;
                 }
 
@@ -651,22 +655,22 @@ function update(deltaTime) {
             break;
         case 'hasRedKey':
             memory.retVal = robot.key === 'red';
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'hasGreenKey':
             memory.retVal = robot.key === 'green';
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'hasBlueKey':
             memory.retVal = robot.key === 'blue';
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'cond':
             if (memory.retVal) {
-                nextInstruction.instructionArray.unshift(currentInstruction[1]);
+                program.insertInstruction(currentInstruction[1]);
             }
 
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
 
             return;
     }
@@ -686,7 +690,7 @@ function update(deltaTime) {
             if (levelCompleted()) {
                 changeGameState();
             } else {
-                robot.currentInstruction = nextInstruction();
+                robot.currentInstruction = program.nextInstruction();
                 robot.instructionCompleted = false;
             }
         }
