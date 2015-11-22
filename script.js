@@ -16,7 +16,7 @@
 // [x] Splash message when completing level
 // [x] Disable code textarea when pressing "Run" button
 // [x] Add "Retry" button
-// [ ] Handle finishing last level
+// [x] Handle finishing last level
 // [ ] Syntax check robot script input
 //       [ ] Error message when parsing
 //       [ ] Show error in status area
@@ -435,6 +435,10 @@ function changeGameState() {
         robot.instructionCompleted = false;
         gameState = 'LEVEL_COMPLETED';
     } else {
+        if (currentLevel === levels.length - 1) {
+            currentLevel = -1;
+        }
+
         $('.level_completed_splash').hide();
         $('.game_menu').show();
         drawGameMenu();
