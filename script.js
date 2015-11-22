@@ -17,9 +17,9 @@
 // [x] Disable code textarea when pressing "Run" button
 // [x] Add "Retry" button
 // [x] Handle finishing last level
-// [ ] Syntax check robot script input
-//       [ ] Error message when parsing
-//       [ ] Show error in status area
+// [x] Syntax check robot script input
+//       [x] Error message when parsing
+//       [x] Show error in status area
 // [ ] `loop` support
 //       [ ] Level that is just `loop { <everything }`
 //       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
@@ -457,6 +457,7 @@ function buildAst() {
     var script = $('textarea').val();
     var tokenizer = new Tokenizer(script);
     var parser = new Parser(tokenizer, ast);
+    var errorMessages = [];
 
     var currentToken;
 
@@ -465,6 +466,18 @@ function buildAst() {
 
         if (!instruction) {
             instruction = parser.parseConditionalStatement();
+        }
+
+        errorMessages = errorMessages.concat(parser.getErrors());
+
+        if (!instruction) {
+            errorMessages.push("Unrecognized token \"" + currentToken + "\"");
+        }
+
+        if (errorMessages.length) {
+            setStatusMessage(errorMessages[0]);
+
+            break;
         }
 
         ast.newLevelChild(instruction);
@@ -764,7 +777,7 @@ ConditionalStatement.prototype.toArray = function () {
 
 function Tokenizer(code) {
     this.tokens = code
-        .split(/([().])|[; \n]/)
+        .split(/([().{}])|[; \n]/)
         .filter(function (item) { return item; });
     this.currentToken = this.tokens[0];
 }
@@ -780,6 +793,7 @@ Tokenizer.prototype.getCurrentToken = function () {
 function Parser(tokenizer, ast) {
     this.tokenizer = tokenizer;
     this.ast = ast;
+    this.errors = [];
 }
 
 Parser.prototype.parseMethodInvocation = function () {
@@ -787,11 +801,20 @@ Parser.prototype.parseMethodInvocation = function () {
 
     if (token === 'robot' && this.tokenizer.getNextToken() === '.') {
         var methodName = this.tokenizer.getNextToken();
-        this.tokenizer.getNextToken(); // Eat '('
+        token = this.tokenizer.getNextToken(); // Eat '('
+        if (token !== '(') {
+            this.addError('Missing "("');
+            return MethodInvocation.create(methodName, []);
+        }
 
         var args = [];
-        while (this.tokenizer.getNextToken() != ')') {
-            args.push(this.tokenizer.getCurrentToken());
+        while ((token = this.tokenizer.getNextToken()) != ')') {
+            if (!token) {
+                this.addError('Missing ")"');
+                break;
+            }
+
+            args.push(token);
         }
 
         return MethodInvocation.create(methodName, args);
@@ -804,13 +827,39 @@ Parser.prototype.parseConditionalStatement = function () {
     if (token === 'if' && this.tokenizer.getNextToken() === '(') {
         this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
         var methodInvocation = this.parseMethodInvocation();
-        this.tokenizer.getNextToken(); // Eat ')'
-        this.tokenizer.getNextToken(); // Eat '{'
-        this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
+
+        token = this.tokenizer.getNextToken(); // Eat ')'
+        if (token !== ')') {
+            this.addError('Missing ")"');
+            return null;
+        }
+
+        token = this.tokenizer.getNextToken(); // Eat '{'
+        if (token !== '{') {
+            this.addError('Missing "{"');
+            return null;
+        }
+
+        token = this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
         var ifPart = this.parseMethodInvocation();
-        this.tokenizer.getNextToken(); // Eat '}'
+        if (!ifPart) {
+            this.addError('Missing method invocation');
+        }
+
+        token = this.tokenizer.getNextToken(); // Eat '}'
+        if (token !== '}') {
+            this.addError('Missing "}"');
+        }
 
         return new ConditionalStatement(methodInvocation, ifPart);
     }
+};
+
+Parser.prototype.addError = function (errorMessage) {
+    this.errors.push(errorMessage);
+};
+
+Parser.prototype.getErrors = function () {
+    return this.errors;
 };
 
