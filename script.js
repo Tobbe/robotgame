@@ -58,7 +58,7 @@ var tokenizer;
  * E = Green Door
  * F = Blue Door
  */
-var levels = [{}, {}, {}];
+var levels = [{}, {}, {}, {}];
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
@@ -145,6 +145,26 @@ levels[2].buttons = [{
     }];
 levels[2].doors = [{open: false}, {open: false}, {open: false}];
 levels[2].chests = [{open: false}];
+
+levels[3].field = [
+    ['2B', 'C-', '0-', '0-', '0-', '0-'],
+    ['0-', '3-', 'C-', '0-', '0-', '0-'],
+    ['0-', '0-', '3-', 'C-', '0-', '0-'],
+    ['0-', '0-', '0-', '3-', 'C-', '0-'],
+    ['0-', '0-', '0-', '0-', '3-', 'C-'],
+    ['0-', '0-', '0-', '0-', '0-', '1A']];
+levels[3].items = [[], [], [], [], [], []];
+levels[3].items[0][0] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[3].leds = [{on: false}];
+levels[3].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }];
 var currentLevel = -1;
 
 var gameState = 'MENU';
