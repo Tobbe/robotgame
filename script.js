@@ -20,8 +20,8 @@
 // [x] Syntax check robot script input
 //       [x] Error message when parsing
 //       [x] Show error in status area
-// [ ] `loop` support
-//       [ ] Level that is just `loop { <everything }`
+// [x] `loop` support
+//       [x] Level that is just `loop { <everything> }`
 //       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
 // [ ] Document `loop`
 // [ ] Fix bug when clicking "Retry" while the robot is moving
@@ -169,7 +169,9 @@ var currentLevel = -1;
 
 var gameState = 'MENU';
 
-var memory = {};
+var memory = {
+    lbl: {}
+};
 var statusMessage = '';
 function setStatusMessage(msg) {
     statusMessage = msg;
@@ -487,6 +489,10 @@ function buildAst() {
             instruction = parser.parseConditionalStatement();
         }
 
+        if (!instruction) {
+            instruction = parser.parseLoopStatement();
+        }
+
         errorMessages = errorMessages.concat(parser.getErrors());
 
         if (!instruction) {
@@ -516,6 +522,14 @@ Program.prototype.nextInstruction = function () {
 
 Program.prototype.insertInstruction = function (instruction) {
     this.instructionArray.splice(this.instructionPointer, 0, instruction);
+};
+
+Program.prototype.getInstructionPointer = function () {
+    return this.instructionPointer;
+};
+
+Program.prototype.setInstructionPointer = function (instructionPointer) {
+    this.instructionPointer = instructionPointer;
 };
 
 function update(deltaTime) {
@@ -667,11 +681,19 @@ function update(deltaTime) {
             return;
         case 'cond':
             if (memory.retVal) {
-                program.insertInstruction(currentInstruction[1]);
+                program.insertInstruction(currentInstruction[1]); // TODO: solve with jmp
             }
 
             robot.currentInstruction = program.nextInstruction();
 
+            return;
+        case 'lbl':
+            memory.lbl[currentInstruction[1]] = program.getInstructionPointer();
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'jmp':
+            program.setInstructionPointer(memory.lbl[currentInstruction[1]]);
+            robot.currentInstruction = program.nextInstruction();
             return;
     }
 
@@ -798,6 +820,36 @@ ConditionalStatement.prototype.toArray = function () {
     return array;
 };
 
+function MethodBlock(methodInvocations) {
+    this.methodInvocations = methodInvocations;
+}
+
+MethodBlock.prototype.toArray = function () {
+    var array = [];
+    this.methodInvocations.forEach(function (inv) {
+        array = array.concat(inv.toArray());
+    });
+
+    return array;
+};
+
+function LoopStatement(methodBlock) {
+    this.methodBlock = methodBlock;
+    LoopStatement.prototype.num = (this.num || 0) + 1;
+    console.log(this.num);
+}
+
+LoopStatement.prototype.getId = function () {
+    return 'loop_statement_' + this.num;
+};
+
+LoopStatement.prototype.toArray = function () {
+    var array = ['lbl ' + this.getId()];
+    array = array.concat(this.methodBlock.toArray());
+    array.push('jmp ' + this.getId());
+
+    return array;
+};
 
 function Tokenizer(code) {
     this.tokens = code
@@ -877,6 +929,33 @@ Parser.prototype.parseConditionalStatement = function () {
 
         return new ConditionalStatement(methodInvocation, ifPart);
     }
+};
+
+Parser.prototype.parseLoopStatement = function () {
+    var token = this.tokenizer.getCurrentToken();
+    var methodBlock;
+
+    if (token === 'loop' && this.tokenizer.getNextToken() === '{') {
+        methodBlock = this.parseMethodBlock();
+    }
+
+    return new LoopStatement(methodBlock);
+};
+
+Parser.prototype.parseMethodBlock = function () {
+    var token = this.tokenizer.getCurrentToken();
+    var methodInvocations = [];
+
+    while ((token = this.tokenizer.getNextToken()) !== '}') {
+        if (!token) {
+            this.addError('Missing "}"');
+            break;
+        }
+
+        methodInvocations.push(this.parseMethodInvocation());
+    }
+
+    return new MethodBlock(methodInvocations);
 };
 
 Parser.prototype.addError = function (errorMessage) {
