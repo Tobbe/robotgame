@@ -44,7 +44,12 @@
             if (robot.has&lt;Color&gt;Key()) {<br>
             &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
             }<br>
-            robot.openDoor();
+            robot.openDoor();<br>
+            loop {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+            }<br>
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -89,6 +94,13 @@
             When the robot stands on a door it can open it using the <code>
             openDoor</code> method. If the door is red, green or blue a key
             with the same color as the door is needed.
+        </p>
+        <p>
+            To execute the same sequence of instructions over and over again
+            a <code>loop</code> is used. You can put how ever many <code>
+            robot.&lt;SomeMethod&gt;()</code> instructions you want inside
+            the loop. For this simple version of a loop, once you enter it,
+            you will never exit.
         </p>
     </div>
 

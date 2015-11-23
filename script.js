@@ -23,7 +23,7 @@
 // [x] `loop` support
 //       [x] Level that is just `loop { <everything> }`
 //       [x] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
-// [ ] Document `loop`
+// [x] Document `loop`
 // [ ] Fix bug when clicking "Retry" while the robot is moving
 // [ ] Merge PR
 // [ ] Keep key after unlocking door to be able to check for key color
