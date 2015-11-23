@@ -31,6 +31,7 @@
 //       [ ] Level that requires use of `loop (cond)`
 // [ ] Document `count` and `loop (cond)`
 // [ ] Connect with hardware (RasPi)
+// [ ] Support for MethodBlock in conditionals
 // [ ] Split source into several files
 // [ ] Support for functions
 // [ ] Message queue for status msgs so that they are always shown 3 secs
@@ -513,15 +514,11 @@ function buildAst() {
 
 function Program(ast) {
     this.instructionArray = ast.toArray();
-    this.instructionPointer = 0;
+    this.instructionPointer = -1;
 }
 
 Program.prototype.nextInstruction = function () {
-    return this.instructionArray[this.instructionPointer++];
-};
-
-Program.prototype.insertInstruction = function (instruction) {
-    this.instructionArray.splice(this.instructionPointer, 0, instruction);
+    return this.instructionArray[++this.instructionPointer];
 };
 
 Program.prototype.getInstructionPointer = function () {
@@ -529,7 +526,7 @@ Program.prototype.getInstructionPointer = function () {
 };
 
 Program.prototype.setInstructionPointer = function (instructionPointer) {
-    this.instructionPointer = instructionPointer;
+    this.instructionPointer = instructionPointer - 1;
 };
 
 function update(deltaTime) {
@@ -681,7 +678,9 @@ function update(deltaTime) {
             return;
         case 'cond':
             if (memory.retVal) {
-                program.insertInstruction(currentInstruction[1]); // TODO: solve with jmp
+                program.setInstructionPointer(
+                    program.getInstructionPointer() +
+                        parseInt(currentInstruction[1]));
             }
 
             robot.currentInstruction = program.nextInstruction();
@@ -693,6 +692,12 @@ function update(deltaTime) {
             return;
         case 'jmp':
             program.setInstructionPointer(memory.lbl[currentInstruction[1]]);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'jmpr':
+            program.setInstructionPointer(
+                program.getInstructionPointer() +
+                    parseInt(currentInstruction[1]));
             robot.currentInstruction = program.nextInstruction();
             return;
     }
@@ -815,7 +820,9 @@ function ConditionalStatement(methodInvocation, ifPart) {
 
 ConditionalStatement.prototype.toArray = function () {
     var array = this.methodInvocation.toArray();
-    array.push('cond ' + this.ifPart.toArray()[0]);
+    array.push('cond 2');
+    array.push('jmpr ' + (this.ifPart.toArray().length + 1));
+    array = array.concat(this.ifPart.toArray());
 
     return array;
 };
