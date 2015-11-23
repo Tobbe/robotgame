@@ -242,7 +242,7 @@ function drawPlayingField() {
 
     function drawTile(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
-            var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
+            var imgStr = '<img src="' + item + '.png" class="field_item" id="' + fieldItem.index + '"></img>';
             var itemElement = $(imgStr);
             itemElement.css('top', y + 10);
             itemElement.css('left', x + 10);
@@ -513,6 +513,17 @@ function update(deltaTime) {
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "robot.png"; });
     }
 
+    function buttonPushAnimation(button){
+        // Quick fix to make it work OK TODO: make it better
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_1.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_2.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_3.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_2.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_1.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "button.png"; });
+    }
+
+
     var tileCoords = robot.currentTileCoords();
     var currentInstruction = (robot.currentInstruction || '').split(' ');
     var item;
@@ -546,6 +557,9 @@ function update(deltaTime) {
             robotPushAnimation();
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'buttons') {
+                var imgButton = $('#'+item.index);
+                // Why is buttonPushAnimation not working?
+                buttonPushAnimation(imgButton);
                 var button = levels[currentLevel].buttons[item.index];
                 var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                 controlledItem.on = !controlledItem.on;
@@ -778,4 +792,3 @@ Parser.prototype.parseConditionalStatement = function () {
         return new ConditionalStatement(methodInvocation, ifPart);
     }
 };
-
