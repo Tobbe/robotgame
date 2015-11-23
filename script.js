@@ -456,6 +456,7 @@ function attachClickHandlers() {
         robot.dy = 0;
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
+        robot.stop(true);
         delete robot.key;
         robot[0].src = 'robot.png';
         setPlayerPosition(getStartPosition());
@@ -633,7 +634,10 @@ function update(deltaTime) {
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "robot.png"; });
+        robot.animate({ opacity: 1 }, 50, function () {
+            robot[0].src = "robot.png";
+            robot.instructionCompleted = true;
+        });
     }
 
     var tileCoords = robot.currentTileCoords();
@@ -666,17 +670,18 @@ function update(deltaTime) {
             move();
             break;
         case 'pushButton':
-            robotPushAnimation();
-            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
-            if (item && item.key === 'buttons') {
-                var button = levels[currentLevel].buttons[item.index];
-                var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
-                controlledItem.on = !controlledItem.on;
-                drawPlayingField();
-            } else {
-                setStatusMessage("No button found here");
+            if (robot.queue().length === 0 && !robot.instructionCompleted) {
+                robotPushAnimation();
+                item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+                if (item && item.key === 'buttons') {
+                    var button = levels[currentLevel].buttons[item.index];
+                    var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
+                    controlledItem.on = !controlledItem.on;
+                    drawPlayingField();
+                } else {
+                    setStatusMessage("No button found here");
+                }
             }
-            robot.instructionCompleted = true;
             break;
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
