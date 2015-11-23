@@ -25,12 +25,15 @@
 //       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
 // [ ] Document `loop`
 // [ ] Fix bug when clicking "Retry" while the robot is moving
+// [ ] Merge PR
+// [ ] Keep key after unlocking door to be able to check for key color
+//     even after passing through door
+// [ ] Connect with hardware (RasPi)
 // [ ] Documentation depends on level (implement using css classes and js)
 // [ ] `count`/`getCount` support
 // [ ] 'loop (cond)' support
 //       [ ] Level that requires use of `loop (cond)`
 // [ ] Document `count` and `loop (cond)`
-// [ ] Connect with hardware (RasPi)
 // [ ] Support for MethodBlock in conditionals
 // [ ] Split source into several files
 // [ ] Support for functions
