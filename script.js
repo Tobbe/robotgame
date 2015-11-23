@@ -22,7 +22,7 @@
 //       [x] Show error in status area
 // [x] `loop` support
 //       [x] Level that is just `loop { <everything> }`
-//       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
+//       [x] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
 // [ ] Document `loop`
 // [ ] Fix bug when clicking "Retry" while the robot is moving
 // [ ] Merge PR
@@ -62,7 +62,7 @@ var program;
  * E = Green Door
  * F = Blue Door
  */
-var levels = [{}, {}, {}, {}];
+var levels = [{}, {}, {}, {}, {}];
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
@@ -164,6 +164,26 @@ levels[3].items[0][0] = {
     };
 levels[3].leds = [{on: false}];
 levels[3].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }];
+
+levels[4].field = [
+    ['0-', '6-', 'A-', 'A-', 'A-', 'CB'],
+    ['0-', '5-', '0-', '0-', '0-', '5-'],
+    ['0-', '3-', 'C-', '6-', 'A-', 'D-'],
+    ['0-', '0-', '7-', '9-', '0-', '5-'],
+    ['6-', '8A', '5-', '6-', 'C-', '5-'],
+    ['3-', 'A-', 'B-', '9-', '3-', '9-']];
+levels[4].items = [[], [], [], [], [], []];
+levels[4].items[0][5] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[4].leds = [{on: false}];
+levels[4].buttons = [{
         controlls: {
             key: 'leds',
             index: 0
