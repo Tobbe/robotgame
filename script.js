@@ -440,13 +440,17 @@ function attachClickHandlers() {
         $('input.clear').prop("disabled", false);
         $('textarea').prop("disabled", false);
 
-        levels[currentLevel].chests.forEach(function (chest) {
-            chest.open = false;
-        });
+        if (levels[currentLevel].chests) {
+            levels[currentLevel].chests.forEach(function (chest) {
+                chest.open = false;
+            });
+        }
 
-        levels[currentLevel].doors.forEach(function (door) {
-            door.open = false;
-        });
+        if (levels[currentLevel].doors) {
+            levels[currentLevel].doors.forEach(function (door) {
+                door.open = false;
+            });
+        }
 
         levels[currentLevel].leds.forEach(function (led) {
             led.on = false;
