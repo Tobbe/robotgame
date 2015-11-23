@@ -24,7 +24,7 @@
 //       [x] Level that is just `loop { <everything> }`
 //       [x] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
 // [x] Document `loop`
-// [ ] Fix bug when clicking "Retry" while the robot is moving
+// [x] Fix bug when clicking "Retry" while the robot is moving
 // [ ] Merge PR
 // [ ] Keep key after unlocking door to be able to check for key color
 //     even after passing through door
@@ -439,10 +439,29 @@ function attachClickHandlers() {
         $('input.run, input.retry').toggleClass('hidden');
         $('input.clear').prop("disabled", false);
         $('textarea').prop("disabled", false);
+
+        levels[currentLevel].chests.forEach(function (chest) {
+            chest.open = false;
+        });
+
+        levels[currentLevel].doors.forEach(function (door) {
+            door.open = false;
+        });
+
+        levels[currentLevel].leds.forEach(function (led) {
+            led.on = false;
+        });
+
         robot.dx = 0;
         robot.dy = 0;
+        robot.currentInstruction = 'wait';
+        robot.instructionCompleted = false;
+        delete robot.key;
+        robot[0].src = 'robot.png';
         setPlayerPosition(getStartPosition());
         program = new Program(buildAst());
+        $('.field_item').remove();
+        drawPlayingField();
     });
 
     $('.game_menu, .level_completed_splash').on('click', function() {
