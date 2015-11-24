@@ -298,7 +298,7 @@ function drawPlayingField() {
 
     function drawTile(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
-            var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
+            var imgStr = '<img src="' + item + '.png" class="field_item" id="' + fieldItem.index + '"></img>';
             var itemElement = $(imgStr);
             itemElement.css('top', y + 10);
             itemElement.css('left', x + 10);
@@ -643,6 +643,16 @@ function update(deltaTime) {
         });
     }
 
+    function buttonPushAnimation(button){
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_1.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_2.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_3.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_2.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_1.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "button.png"; });
+    }
+
+
     var tileCoords = robot.currentTileCoords();
     var currentInstruction = (robot.currentInstruction || '').split(' ');
     var item;
@@ -676,7 +686,9 @@ function update(deltaTime) {
             if (robot.queue().length === 0 && !robot.instructionCompleted) {
                 item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
                 if (item && item.key === 'buttons') {
-                    robotPushAnimation();
+                    robotPshAnimation();
+                    //TODO:fix this
+                    buttonPushAnimation(imgButton);
                     var button = levels[currentLevel].buttons[item.index];
                     var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                     controlledItem.on = !controlledItem.on;
