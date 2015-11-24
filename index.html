@@ -1,3 +1,4 @@
+
 <!doctype html>
 
 <html lang="en">
@@ -8,20 +9,23 @@
 
     <link rel="stylesheet" href="style.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-
 </head>
 
 <body>
     <div class="game_area">
         <canvas class="game_menu" width="780" height="450"></canvas>
+        <canvas class="level_completed_splash" width="780" height="450"></canvas>
         <canvas class="field" width="410" height="450"></canvas>
         <form>
-            <textarea cols="30" rows="20" placeholder="Write your program here"></textarea>
-            <input type="button" class="run" value="Run" />
-            <input type="reset" class="reset" value="Clear" />
+            <textarea cols="30" rows="20"
+                placeholder="Write your program here" autocomplete="off"
+                autocorrect="off" autocapitalize="off" spellcheck="false">
+            </textarea>
+            <input type="button" class="run" value="Run">
+            <input type="button" class="retry hidden" value="Retry">
+            <input type="reset" class="clear" value="Clear">
         </form>
     </div>
-    <input type="button" class="restart" value="Restart" />
     <div class="instructions">
         <h1>Instructions</h1>
         <p>
@@ -41,7 +45,12 @@
             if (robot.has&lt;Color&gt;Key()) {<br>
             &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
             }<br>
-            robot.openDoor();
+            robot.openDoor();<br>
+            loop {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+            }<br>
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -56,7 +65,7 @@
         </p>
         <code class="info-area">
             robot.moveRight(2);<br>
-            robot.moveUp(1);
+            robot.moveUp();
         </code>
         <p>
             When the robot stands on a button it can push it using the
@@ -86,6 +95,13 @@
             When the robot stands on a door it can open it using the <code>
             openDoor</code> method. If the door is red, green or blue a key
             with the same color as the door is needed.
+        </p>
+        <p>
+            To execute the same sequence of instructions over and over again
+            a <code>loop</code> is used. You can put how ever many <code>
+            robot.&lt;SomeMethod&gt;()</code> instructions you want inside
+            the loop. For this simple version of a loop, once you enter it,
+            you will never exit.
         </p>
     </div>
 

@@ -1,0 +1,22 @@
+{
+  "name": "espruino-serial-leds",
+  "version": "0.0.1",
+  "description": "Controlls LEDs connected to an Espruino Pico using Node.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tobbe/robotgame.git"
+  },
+  "author": "Tobbe Lundberg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tobbe/robotgame/issues"
+  },
+  "homepage": "https://github.com/Tobbe/robotgame#readme",
+  "dependencies": {
+    "serialport": "^2.0.5"
+  }
+}

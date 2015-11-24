@@ -13,26 +13,30 @@
 //       [x] No chest to open (openChest)
 //       [x] Found <Key color> key (openChest)
 // [x] Change robot graphics when picking up key
-// [ ] Splash message when completing level
-// [ ] Disable code textarea when pressing "Run" button
-// [ ] Add "Retry" button
-// [ ] Handle finishing last level
-// [ ] Syntax check robot script input
-//       [ ] Error message when parsing
-//       [ ] Show error in status area
-// [ ] `loop` support
-//       [ ] Level that is just `loop { <everything }`
-//       [ ] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
-// [ ] Document `loop`
+// [x] Splash message when completing level
+// [x] Disable code textarea when pressing "Run" button
+// [x] Add "Retry" button
+// [x] Handle finishing last level
+// [x] Syntax check robot script input
+//       [x] Error message when parsing
+//       [x] Show error in status area
+// [x] `loop` support
+//       [x] Level that is just `loop { <everything> }`
+//       [x] Level that is `<instr one>, <instr two>, <...>, loop { <rest> }`
+// [x] Document `loop`
+// [x] Fix bug when clicking "Retry" while the robot is moving
+// [x] Merge PR
+// [ ] Keep key after unlocking door to be able to check for key color
+//     even after passing through door
+// [ ] Connect with hardware (RasPi)
 // [ ] Documentation depends on level (implement using css classes and js)
 // [ ] `count`/`getCount` support
 // [ ] 'loop (cond)' support
 //       [ ] Level that requires use of `loop (cond)`
 // [ ] Document `count` and `loop (cond)`
-// [ ] Connect with hardware (RasPi)
+// [ ] Support for MethodBlock in conditionals
 // [ ] Split source into several files
 // [ ] Support for functions
-// [ ] When press restart, restart the current level
 // [ ] Message queue for status msgs so that they are always shown 3 secs
 // [ ] Freeplay mode where you can enter commands one at a time and the
 //     robot follows them.  Used to interactivly controll the LEDs
@@ -40,8 +44,8 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
-var ast;
 var tokenizer;
+var program;
 
 /**
  * First position
@@ -58,7 +62,7 @@ var tokenizer;
  * E = Green Door
  * F = Blue Door
  */
-var levels = [{}, {}, {}];
+var levels = [{}, {}, {}, {}, {}];
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
@@ -145,11 +149,53 @@ levels[2].buttons = [{
     }];
 levels[2].doors = [{open: false}, {open: false}, {open: false}];
 levels[2].chests = [{open: false}];
+
+levels[3].field = [
+    ['2B', 'C-', '0-', '0-', '0-', '0-'],
+    ['0-', '3-', 'C-', '0-', '0-', '0-'],
+    ['0-', '0-', '3-', 'C-', '0-', '0-'],
+    ['0-', '0-', '0-', '3-', 'C-', '0-'],
+    ['0-', '0-', '0-', '0-', '3-', 'C-'],
+    ['0-', '0-', '0-', '0-', '0-', '1A']];
+levels[3].items = [[], [], [], [], [], []];
+levels[3].items[0][0] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[3].leds = [{on: false}];
+levels[3].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }];
+
+levels[4].field = [
+    ['0-', '6-', 'A-', 'A-', 'A-', 'CB'],
+    ['0-', '5-', '0-', '0-', '0-', '5-'],
+    ['0-', '3-', 'C-', '6-', 'A-', 'D-'],
+    ['0-', '0-', '7-', '9-', '0-', '5-'],
+    ['6-', '8A', '5-', '6-', 'C-', '5-'],
+    ['3-', 'A-', 'B-', '9-', '3-', '9-']];
+levels[4].items = [[], [], [], [], [], []];
+levels[4].items[0][5] = {
+        key: 'buttons',
+        index: '0'
+    };
+levels[4].leds = [{on: false}];
+levels[4].buttons = [{
+        controlls: {
+            key: 'leds',
+            index: 0
+        }
+    }];
 var currentLevel = -1;
 
 var gameState = 'MENU';
 
-var memory = {};
+var memory = {
+    lbl: {}
+};
 var statusMessage = '';
 function setStatusMessage(msg) {
     statusMessage = msg;
@@ -198,6 +244,16 @@ function drawGameMenu() {
     };
 
     img.src = "game_menu.png";
+}
+
+function drawLevelCompletedSplash() {
+    var context = $('.level_completed_splash')[0].getContext('2d');
+    var img = new Image();
+    img.src = "level_completed.png";
+
+    img.onload = function () {
+        context.drawImage(img, 175, 110);
+    };
 }
 
 function drawPlayingField() {
@@ -371,16 +427,49 @@ function setPlayerPosition(coords) {
 
 function attachClickHandlers() {
     $('input.run').on('click', function() {
-        ast = buildAst();
-        robot.currentInstruction = nextInstruction();
+        program = new Program(buildAst());
+        robot.currentInstruction = program.nextInstruction();
         robot.instructionCompleted = false;
+        $('textarea').prop("disabled", true);
+        $('input.clear').prop("disabled", true);
+        $('input.run, input.retry').toggleClass('hidden');
     });
 
-    $('input.restart').on('click', function() {
-        location.reload(false);
+    $('input.retry').on('click', function () {
+        $('input.run, input.retry').toggleClass('hidden');
+        $('input.clear').prop("disabled", false);
+        $('textarea').prop("disabled", false);
+
+        if (levels[currentLevel].chests) {
+            levels[currentLevel].chests.forEach(function (chest) {
+                chest.open = false;
+            });
+        }
+
+        if (levels[currentLevel].doors) {
+            levels[currentLevel].doors.forEach(function (door) {
+                door.open = false;
+            });
+        }
+
+        levels[currentLevel].leds.forEach(function (led) {
+            led.on = false;
+        });
+
+        robot.dx = 0;
+        robot.dy = 0;
+        robot.currentInstruction = 'wait';
+        robot.instructionCompleted = false;
+        robot.stop(true);
+        delete robot.key;
+        robot[0].src = 'robot.png';
+        setPlayerPosition(getStartPosition());
+        program = new Program(buildAst());
+        $('.field_item').remove();
+        drawPlayingField();
     });
 
-    $('.game_menu').on('click', function() {
+    $('.game_menu, .level_completed_splash').on('click', function() {
         changeGameState();
     });
 
@@ -395,20 +484,33 @@ function attachClickHandlers() {
 
 function changeGameState() {
     if (gameState === 'MENU') {
-        delete nextInstruction.instructionArray;
         currentLevel++;
-        $('.game_area textarea').val('');
+        $('.game_area textarea')
+            .val('')
+            .prop("disabled", false);
+        $('input.clear').prop("disabled", false);
+        $('input.run').removeClass('hidden');
+        $('input.retry').addClass('hidden');
         $('.field_item').remove();
         drawPlayingField();
         setPlayerPosition(getStartPosition());
         $('.game_menu').hide();
-        $('input.restart').show();
+        $('.level_completed_splash').hide();
         gameState = 'GAME';
-    } else {
-        $('.game_menu').show();
-        drawGameMenu();
+    } else if (gameState === 'GAME') {
+        $('.level_completed_splash').show();
+        drawLevelCompletedSplash();
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
+        gameState = 'LEVEL_COMPLETED';
+    } else {
+        if (currentLevel === levels.length - 1) {
+            currentLevel = -1;
+        }
+
+        $('.level_completed_splash').hide();
+        $('.game_menu').show();
+        drawGameMenu();
         gameState = 'MENU';
     }
 }
@@ -424,6 +526,7 @@ function buildAst() {
     var script = $('textarea').val();
     var tokenizer = new Tokenizer(script);
     var parser = new Parser(tokenizer, ast);
+    var errorMessages = [];
 
     var currentToken;
 
@@ -434,19 +537,44 @@ function buildAst() {
             instruction = parser.parseConditionalStatement();
         }
 
+        if (!instruction) {
+            instruction = parser.parseLoopStatement();
+        }
+
+        errorMessages = errorMessages.concat(parser.getErrors());
+
+        if (!instruction) {
+            errorMessages.push("Unrecognized token \"" + currentToken + "\"");
+        }
+
+        if (errorMessages.length) {
+            setStatusMessage(errorMessages[0]);
+
+            break;
+        }
+
         ast.newLevelChild(instruction);
     }
 
     return ast;
 }
 
-function nextInstruction() {
-    if (!nextInstruction.instructionArray) {
-        nextInstruction.instructionArray = ast.toArray();
-    }
-
-    return nextInstruction.instructionArray.shift();
+function Program(ast) {
+    this.instructionArray = ast.toArray();
+    this.instructionPointer = -1;
 }
+
+Program.prototype.nextInstruction = function () {
+    return this.instructionArray[++this.instructionPointer];
+};
+
+Program.prototype.getInstructionPointer = function () {
+    return this.instructionPointer;
+};
+
+Program.prototype.setInstructionPointer = function (instructionPointer) {
+    this.instructionPointer = instructionPointer - 1;
+};
 
 function update(deltaTime) {
     function levelCompleted() {
@@ -500,7 +628,6 @@ function update(deltaTime) {
     }
 
     function robotPushAnimation(){
-        // Quick fix to make it work OK TODO: make it better
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
@@ -510,7 +637,10 @@ function update(deltaTime) {
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "robot.png"; });
+        robot.animate({ opacity: 1 }, 50, function () {
+            robot[0].src = "robot.png";
+            robot.instructionCompleted = true;
+        });
     }
 
     var tileCoords = robot.currentTileCoords();
@@ -525,11 +655,11 @@ function update(deltaTime) {
             if (!robotIsMoving()) {
                 if (movingThroughWall(currentInstruction[0])) {
                     setStatusMessage("You can't walk through walls");
-                    robot.currentInstruction = nextInstruction();
+                    robot.currentInstruction = program.nextInstruction();
                     return;
                 } else if (standingOnClosedDoor()) {
                     setStatusMessage("You banged straight in to a closed door");
-                    robot.currentInstruction = nextInstruction();
+                    robot.currentInstruction = program.nextInstruction();
                     return;
                 }
 
@@ -543,17 +673,20 @@ function update(deltaTime) {
             move();
             break;
         case 'pushButton':
-            robotPushAnimation();
-            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
-            if (item && item.key === 'buttons') {
-                var button = levels[currentLevel].buttons[item.index];
-                var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
-                controlledItem.on = !controlledItem.on;
-                drawPlayingField();
-            } else {
-                setStatusMessage("No button found here");
+            if (robot.queue().length === 0 && !robot.instructionCompleted) {
+                item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+                if (item && item.key === 'buttons') {
+                    robotPushAnimation();
+                    var button = levels[currentLevel].buttons[item.index];
+                    var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
+                    controlledItem.on = !controlledItem.on;
+                    $.get('http://localhost:8080/1');
+                    drawPlayingField();
+                } else {
+                    setStatusMessage("No button found here");
+                    robot.instructionCompleted = true;
+                }
             }
-            robot.instructionCompleted = true;
             break;
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
@@ -572,6 +705,7 @@ function update(deltaTime) {
             } else {
                 setStatusMessage("Nice try, but there is no chest here");
             }
+
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
@@ -579,6 +713,7 @@ function update(deltaTime) {
             item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'doors') {
                 var door = levels[currentLevel].doors[item.index];
+
                 if (tile[1] === 'D' && robot.key === 'red' ||
                         tile[1] === 'E' && robot.key === 'green' ||
                         tile[1] === 'F' && robot.key === 'blue') {
@@ -598,23 +733,39 @@ function update(deltaTime) {
             break;
         case 'hasRedKey':
             memory.retVal = robot.key === 'red';
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'hasGreenKey':
             memory.retVal = robot.key === 'green';
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'hasBlueKey':
             memory.retVal = robot.key === 'blue';
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'cond':
             if (memory.retVal) {
-                nextInstruction.instructionArray.unshift(currentInstruction[1]);
+                program.setInstructionPointer(
+                    program.getInstructionPointer() +
+                        parseInt(currentInstruction[1]));
             }
 
-            robot.currentInstruction = nextInstruction();
+            robot.currentInstruction = program.nextInstruction();
 
+            return;
+        case 'lbl':
+            memory.lbl[currentInstruction[1]] = program.getInstructionPointer();
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'jmp':
+            program.setInstructionPointer(memory.lbl[currentInstruction[1]]);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'jmpr':
+            program.setInstructionPointer(
+                program.getInstructionPointer() +
+                    parseInt(currentInstruction[1]));
+            robot.currentInstruction = program.nextInstruction();
             return;
     }
 
@@ -633,10 +784,23 @@ function update(deltaTime) {
             if (levelCompleted()) {
                 changeGameState();
             } else {
-                robot.currentInstruction = nextInstruction();
+                robot.currentInstruction = program.nextInstruction();
                 robot.instructionCompleted = false;
             }
         }
+    }
+}
+
+function updateLevelCompleted(deltaTime) {
+    if (!updateLevelCompleted.timeToWait) {
+        updateLevelCompleted.timeToWait = 2000;
+    }
+
+    updateLevelCompleted.timeToWait -= deltaTime;
+
+    if (updateLevelCompleted.timeToWait <= 0) {
+        delete updateLevelCompleted.timeToWait;
+        changeGameState();
     }
 }
 
@@ -655,6 +819,8 @@ function frame() {
     if (gameState === 'GAME') {
         update(deltaTime);
         render(deltaTime);
+    } else if (gameState === 'LEVEL_COMPLETED') {
+        updateLevelCompleted(deltaTime);
     }
 
     last = now;
@@ -721,15 +887,47 @@ function ConditionalStatement(methodInvocation, ifPart) {
 
 ConditionalStatement.prototype.toArray = function () {
     var array = this.methodInvocation.toArray();
-    array.push('cond ' + this.ifPart.toArray()[0]);
+    array.push('cond 2');
+    array.push('jmpr ' + (this.ifPart.toArray().length + 1));
+    array = array.concat(this.ifPart.toArray());
 
     return array;
 };
 
+function MethodBlock(methodInvocations) {
+    this.methodInvocations = methodInvocations;
+}
+
+MethodBlock.prototype.toArray = function () {
+    var array = [];
+    this.methodInvocations.forEach(function (inv) {
+        array = array.concat(inv.toArray());
+    });
+
+    return array;
+};
+
+function LoopStatement(methodBlock) {
+    this.methodBlock = methodBlock;
+    LoopStatement.prototype.num = (this.num || 0) + 1;
+    console.log(this.num);
+}
+
+LoopStatement.prototype.getId = function () {
+    return 'loop_statement_' + this.num;
+};
+
+LoopStatement.prototype.toArray = function () {
+    var array = ['lbl ' + this.getId()];
+    array = array.concat(this.methodBlock.toArray());
+    array.push('jmp ' + this.getId());
+
+    return array;
+};
 
 function Tokenizer(code) {
     this.tokens = code
-        .split(/([().])|[; \n]/)
+        .split(/([().{}])|[; \n]/)
         .filter(function (item) { return item; });
     this.currentToken = this.tokens[0];
 }
@@ -745,6 +943,7 @@ Tokenizer.prototype.getCurrentToken = function () {
 function Parser(tokenizer, ast) {
     this.tokenizer = tokenizer;
     this.ast = ast;
+    this.errors = [];
 }
 
 Parser.prototype.parseMethodInvocation = function () {
@@ -752,11 +951,20 @@ Parser.prototype.parseMethodInvocation = function () {
 
     if (token === 'robot' && this.tokenizer.getNextToken() === '.') {
         var methodName = this.tokenizer.getNextToken();
-        this.tokenizer.getNextToken(); // Eat '('
+        token = this.tokenizer.getNextToken(); // Eat '('
+        if (token !== '(') {
+            this.addError('Missing "("');
+            return MethodInvocation.create(methodName, []);
+        }
 
         var args = [];
-        while (this.tokenizer.getNextToken() != ')') {
-            args.push(this.tokenizer.getCurrentToken());
+        while ((token = this.tokenizer.getNextToken()) != ')') {
+            if (!token) {
+                this.addError('Missing ")"');
+                break;
+            }
+
+            args.push(token);
         }
 
         return MethodInvocation.create(methodName, args);
@@ -769,13 +977,65 @@ Parser.prototype.parseConditionalStatement = function () {
     if (token === 'if' && this.tokenizer.getNextToken() === '(') {
         this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
         var methodInvocation = this.parseMethodInvocation();
-        this.tokenizer.getNextToken(); // Eat ')'
-        this.tokenizer.getNextToken(); // Eat '{'
-        this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
+
+        token = this.tokenizer.getNextToken(); // Eat ')'
+        if (token !== ')') {
+            this.addError('Missing ")"');
+            return null;
+        }
+
+        token = this.tokenizer.getNextToken(); // Eat '{'
+        if (token !== '{') {
+            this.addError('Missing "{"');
+            return null;
+        }
+
+        token = this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
         var ifPart = this.parseMethodInvocation();
-        this.tokenizer.getNextToken(); // Eat '}'
+        if (!ifPart) {
+            this.addError('Missing method invocation');
+        }
+
+        token = this.tokenizer.getNextToken(); // Eat '}'
+        if (token !== '}') {
+            this.addError('Missing "}"');
+        }
 
         return new ConditionalStatement(methodInvocation, ifPart);
     }
 };
 
+Parser.prototype.parseLoopStatement = function () {
+    var token = this.tokenizer.getCurrentToken();
+    var methodBlock;
+
+    if (token === 'loop' && this.tokenizer.getNextToken() === '{') {
+        methodBlock = this.parseMethodBlock();
+    }
+
+    return new LoopStatement(methodBlock);
+};
+
+Parser.prototype.parseMethodBlock = function () {
+    var token = this.tokenizer.getCurrentToken();
+    var methodInvocations = [];
+
+    while ((token = this.tokenizer.getNextToken()) !== '}') {
+        if (!token) {
+            this.addError('Missing "}"');
+            break;
+        }
+
+        methodInvocations.push(this.parseMethodInvocation());
+    }
+
+    return new MethodBlock(methodInvocations);
+};
+
+Parser.prototype.addError = function (errorMessage) {
+    this.errors.push(errorMessage);
+};
+
+Parser.prototype.getErrors = function () {
+    return this.errors;
+};
