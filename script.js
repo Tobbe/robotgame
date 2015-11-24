@@ -298,11 +298,12 @@ function drawPlayingField() {
 
     function drawTile(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
-            var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
+            var imgStr = '<img src="' + item + '.png" class="field_item" id="' + item + fieldItem.index + '"></img>';
             var itemElement = $(imgStr);
             itemElement.css('top', y + 10);
             itemElement.css('left', x + 10);
             $('.game_area').append(itemElement);
+            fieldItem.imgObject = itemElement;
         }
 
         var door;
@@ -627,12 +628,18 @@ function update(deltaTime) {
         }
     }
 
-    function robotPushAnimation(){
+    function pushAnimation(button){
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_5.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_1.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_2.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_3.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_2.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "img_push/button_push_1.png"; });
+        button.animate({ opacity: 1 }, 50, function () { button[0].src = "button.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
@@ -676,7 +683,8 @@ function update(deltaTime) {
             if (robot.queue().length === 0 && !robot.instructionCompleted) {
                 item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
                 if (item && item.key === 'buttons') {
-                    robotPushAnimation();
+                    var imgButton = $('#button'+item.index);
+                    pushAnimation(item.imgObject);
                     var button = levels[currentLevel].buttons[item.index];
                     var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                     controlledItem.on = !controlledItem.on;
@@ -1039,4 +1047,3 @@ Parser.prototype.addError = function (errorMessage) {
 Parser.prototype.getErrors = function () {
     return this.errors;
 };
-
