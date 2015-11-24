@@ -6,17 +6,15 @@ serialport.list(function (err, ports) {
             serialPort = new serialport.SerialPort(port.comName);
 
             serialPort.on("open", function () {
-                var script = "var led1IsOn = false;\n" +
-                             "LED1.reset();\n" +
-                             "function toggleLed() {\n" +
-                             "    if (led1IsOn) {\n" +
-                             "        LED1.reset();\n" +
-                             "        led1IsOn = false;\n" +
-                             "    } else {\n" +
-                             "        LED1.set();\n" +
-                             "        led1IsOn = true;\n" +
-                             "    }\n" +
-                             "}\n";
+                var script =
+                    "var leds = [new Pin('B3'), new Pin('B4'), new Pin('B5')];\n" +
+                    "function turnLedOn(led) {\n" +
+                    "    leds[led].set();\n" +
+                    "}\n" +
+                    "function turnLedOff(led) {\n" +
+                    "    leds[led].reset();\n" +
+                    "}\n" +
+                    "leds.forEach(function(led) { led.reset(); });\n";
                 serialPort.write(script, function(err, results) {
                     if (err) {
                         console.log('err ' + err);
@@ -27,8 +25,9 @@ serialport.list(function (err, ports) {
     });
 });
 
-function toggleLed() {
-    serialPort.write("toggleLed();\n", function (err, results) {
+function setLedOn(led, on) {
+    var cmd = on ? "turnLedOn(" + led + ");\n" : "turnLedOff(" + led + ");\n";
+    serialPort.write(cmd, function (err, results) {
         if (err) {
             console.log('err ' + err);
         }
@@ -36,13 +35,28 @@ function toggleLed() {
 }
 
 var http = require('http');
-var PORT = 8080; 
+var PORT = 8080;
+
+function parseBody(request, callback) {
+    var data = '';
+
+    request.on('data', function(chunk) {
+        data += chunk;
+    });
+
+    request.on('end', function() {
+        callback(data);
+    });
+}
 
 function handleRequest(request, response) {
     response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.end('');
-    if (request.url == '/1') {
-        toggleLed();
+    if (request.method == 'PUT' && request.url.length > 1) {
+        parseBody(request, function (data) {
+            setLedOn(request.url[1], data === 'on');
+        });
     }
 }
 
