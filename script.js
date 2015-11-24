@@ -680,6 +680,7 @@ function update(deltaTime) {
                     var button = levels[currentLevel].buttons[item.index];
                     var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                     controlledItem.on = !controlledItem.on;
+                    $.get('http://localhost:8080/1');
                     drawPlayingField();
                 } else {
                     setStatusMessage("No button found here");
