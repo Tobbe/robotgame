@@ -511,6 +511,12 @@ function changeGameState() {
         drawLevelCompletedSplash();
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
+        for (var i = 0; i < levels[currentLevel].leds.length; i++) {
+            $.ajax('http://localhost:8080/' + i, {
+                method: "PUT",
+                data: "off",
+            });
+        }
         gameState = 'LEVEL_COMPLETED';
     } else {
         if (currentLevel === levels.length - 1) {
@@ -689,7 +695,11 @@ function update(deltaTime) {
                     var button = levels[currentLevel].buttons[item.index];
                     var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
                     controlledItem.on = !controlledItem.on;
-                    $.get('http://localhost:8080/1');
+                    var url = 'http://localhost:8080/' + button.controlls.index;
+                    $.ajax(url, {
+                        method: "PUT",
+                        data: controlledItem.on ? "on" : "off",
+                    });
                     drawPlayingField();
                 } else {
                     setStatusMessage("No button found here");
