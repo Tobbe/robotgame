@@ -48,6 +48,11 @@ input:active {
     top: 1px;
 }
 
+input.clear {
+    float: left;
+    margin-left: 0;
+}
+
 input:disabled {
     color: #888;
     background: #f0f0f0;
