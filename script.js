@@ -66,20 +66,29 @@ var levels = [{}, {}, {}, {}, {}];
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
-    ['7-', 'F-', 'FA', 'FB', 'F-', 'D-'],
+    ['7-', 'FB', 'FA', 'FB', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
     ['3-', 'B-', 'B-', 'B-', 'B-', '9-']];
 levels[0].items = [[], [], [], [], [], []];
-levels[0].items[2][3] = {
+levels[0].items[2][1] = {
         key: 'buttons',
         index: '0'
     };
-levels[0].leds = [{on: false}];
+levels[0].items[2][3] = {
+        key: 'buttons',
+        index: '1'
+    };
+levels[0].leds = [{on: false}, {on: false}];
 levels[0].buttons = [{
         controlls: {
             key: 'leds',
             index: 0
+        }
+    }, {
+        controlls: {
+            key: 'leds',
+            index: 1
         }
     }];
 
