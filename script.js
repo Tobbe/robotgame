@@ -661,12 +661,15 @@ function update(deltaTime) {
         }
     }
 
-    function robotPushAnimation(){
+    function robotPushAnimation(triggerAction) {
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_5.png"; });
+        robot.animate({ opacity: 1 }, 50, function () {
+            robot[0].src = "img_push/robot_push_5.png";
+            triggerAction();
+        });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
@@ -710,16 +713,17 @@ function update(deltaTime) {
             if (robot.queue().length === 0 && !robot.instructionCompleted) {
                 item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
                 if (item && item.key === 'buttons') {
-                    robotPushAnimation();
-                    var button = levels[currentLevel].buttons[item.index];
-                    var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
-                    controlledItem.on = !controlledItem.on;
-                    var url = 'http://localhost:8080/' + button.controlls.index;
-                    $.ajax(url, {
-                        method: "PUT",
-                        data: controlledItem.on ? "on" : "off",
+                    robotPushAnimation(function () {
+                        var button = levels[currentLevel].buttons[item.index];
+                        var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
+                        controlledItem.on = !controlledItem.on;
+                        var url = 'http://localhost:8080/' + button.controlls.index;
+                        $.ajax(url, {
+                            method: "PUT",
+                            data: controlledItem.on ? "on" : "off",
+                        });
+                        drawPlayingField();
                     });
-                    drawPlayingField();
                 } else {
                     setStatusMessage("No button found here");
                     robot.instructionCompleted = true;
