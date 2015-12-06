@@ -485,24 +485,26 @@ function attachClickHandlers() {
     $('body').on('keypress', function (event) {
         if (gameState === 'MENU') {
             var num = -48 + event.which;
-            currentLevel = num - 2;
+            var selectedLevelIndex = num - 1;
 
-            if (levels[currentLevel].chests) {
-                levels[currentLevel].chests.forEach(function (chest) {
+            if (levels[selectedLevelIndex].chests) {
+                levels[selectedLevelIndex].chests.forEach(function (chest) {
                     chest.open = false;
                 });
             }
 
-            if (levels[currentLevel].doors) {
-                levels[currentLevel].doors.forEach(function (door) {
+            if (levels[selectedLevelIndex].doors) {
+                levels[selectedLevelIndex].doors.forEach(function (door) {
                     door.open = false;
                 });
             }
 
-            levels[currentLevel].leds.forEach(function (led) {
+            levels[selectedLevelIndex].leds.forEach(function (led) {
                 led.on = false;
             });
 
+            // currentLevel will be increased by one in changeGameState()
+            currentLevel = selectedLevelIndex - 1;
             changeGameState();
         }
     });
