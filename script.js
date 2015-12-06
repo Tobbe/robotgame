@@ -28,7 +28,7 @@
 // [x] Merge PR
 // [ ] Keep key after unlocking door to be able to check for key color
 //     even after passing through door
-// [ ] Connect with hardware (RasPi)
+// [x] Connect with hardware (Espruino Pico)
 // [ ] Documentation depends on level (implement using css classes and js)
 // [ ] `count`/`getCount` support
 // [ ] 'loop (cond)' support
