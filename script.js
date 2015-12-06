@@ -948,7 +948,6 @@ MethodBlock.prototype.toArray = function () {
 function LoopStatement(methodBlock) {
     this.methodBlock = methodBlock;
     LoopStatement.prototype.num = (this.num || 0) + 1;
-    console.log(this.num);
 }
 
 LoopStatement.prototype.getId = function () {
