@@ -34,7 +34,7 @@
 // [ ] 'loop (cond)' support
 //       [ ] Level that requires use of `loop (cond)`
 // [ ] Document `count` and `loop (cond)`
-// [ ] Support for MethodBlock in conditionals
+// [x] Support for MethodBlock in conditionals
 // [ ] Split source into several files
 // [ ] Support for functions
 // [ ] Message queue for status msgs so that they are always shown 3 secs
@@ -781,9 +781,9 @@ function update(deltaTime) {
             return;
         case 'cond':
             if (memory.retVal) {
-                program.setInstructionPointer(
-                    program.getInstructionPointer() +
-                        parseInt(currentInstruction[1]));
+                var trueJumpTarget = program.getInstructionPointer() +
+                    parseInt(currentInstruction[1]);
+                program.setInstructionPointer(trueJumpTarget);
             }
 
             robot.currentInstruction = program.nextInstruction();
@@ -798,9 +798,9 @@ function update(deltaTime) {
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'jmpr':
-            program.setInstructionPointer(
-                program.getInstructionPointer() +
-                    parseInt(currentInstruction[1]));
+            var jumpTarget = program.getInstructionPointer() +
+                parseInt(currentInstruction[1]);
+            program.setInstructionPointer(jumpTarget);
             robot.currentInstruction = program.nextInstruction();
             return;
     }
@@ -916,16 +916,16 @@ MethodInvocation.create = function (name, args) {
     return methodInvocation;
 };
 
-function ConditionalStatement(methodInvocation, ifPart) {
+function ConditionalStatement(methodInvocation, ifMethodBlock) {
     this.methodInvocation = methodInvocation;
-    this.ifPart = ifPart;
+    this.ifMethodBlock = ifMethodBlock;
 }
 
 ConditionalStatement.prototype.toArray = function () {
     var array = this.methodInvocation.toArray();
     array.push('cond 2');
-    array.push('jmpr ' + (this.ifPart.toArray().length + 1));
-    array = array.concat(this.ifPart.toArray());
+    array.push('jmpr ' + (this.ifMethodBlock.toArray().length + 1));
+    array = array.concat(this.ifMethodBlock.toArray());
 
     return array;
 };
@@ -1036,18 +1036,12 @@ Parser.prototype.parseConditionalStatement = function () {
             return null;
         }
 
-        token = this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
-        var ifPart = this.parseMethodInvocation();
-        if (!ifPart) {
-            this.addError('Missing method invocation');
+        var ifMethodBlock = this.parseMethodBlock();
+        if (!ifMethodBlock) {
+            this.addError('Missing "if" method block');
         }
 
-        token = this.tokenizer.getNextToken(); // Eat '}'
-        if (token !== '}') {
-            this.addError('Missing "}"');
-        }
-
-        return new ConditionalStatement(methodInvocation, ifPart);
+        return new ConditionalStatement(methodInvocation, ifMethodBlock);
     }
 };
 
