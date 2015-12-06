@@ -985,7 +985,12 @@ function Parser(tokenizer, ast) {
 Parser.prototype.parseMethodInvocation = function () {
     var token = this.tokenizer.getCurrentToken();
 
-    if (token === 'robot' && this.tokenizer.getNextToken() === '.') {
+    if (token === 'robot') {
+        if (this.tokenizer.getNextToken() !== '.') {
+            this.addError('Missing "."');
+            return null;
+        }
+
         var methodName = this.tokenizer.getNextToken();
         token = this.tokenizer.getNextToken(); // Eat '('
         if (token !== '(') {
@@ -1010,7 +1015,12 @@ Parser.prototype.parseMethodInvocation = function () {
 Parser.prototype.parseConditionalStatement = function () {
     var token = this.tokenizer.getCurrentToken();
 
-    if (token === 'if' && this.tokenizer.getNextToken() === '(') {
+    if (token === 'if') {
+        if (this.tokenizer.getNextToken() !== '(') {
+            this.addError('Missing "("');
+            return null;
+        }
+
         this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
         var methodInvocation = this.parseMethodInvocation();
 
@@ -1045,7 +1055,12 @@ Parser.prototype.parseLoopStatement = function () {
     var token = this.tokenizer.getCurrentToken();
     var methodBlock;
 
-    if (token === 'loop' && this.tokenizer.getNextToken() === '{') {
+    if (token === 'loop') {
+        if (this.tokenizer.getNextToken() !== '{') {
+            this.addError('Missing "{"');
+            return null;
+        }
+
         methodBlock = this.parseMethodBlock();
     }
 
