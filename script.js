@@ -26,7 +26,7 @@
 // [x] Document `loop`
 // [x] Fix bug when clicking "Retry" while the robot is moving
 // [x] Merge PR
-// [ ] Keep key after unlocking door to be able to check for key color
+// [x] Keep key after unlocking door to be able to check for key color
 //     even after passing through door
 // [x] Connect with hardware (Espruino Pico)
 // [ ] Documentation depends on level (implement using css classes and js)
@@ -305,6 +305,22 @@ function drawPlayingField() {
         context.fillText(statusMessage, x + 6, y + 18);
     }
 
+    function drawKey(context, color, x, y) {
+        if (!robot.key) {
+            return;
+        }
+
+        var img = new Image();
+
+        img.onload = function () {
+            context.drawImage(img, x, y);
+        };
+
+        console.log('color', color);
+        img.src = "key_" + color + ".png";
+        console.log(img.src);
+    }
+
     function drawTile(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
             var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
@@ -407,6 +423,7 @@ function drawPlayingField() {
     var statusAreaX = levels[currentLevel].field[0].length * 68;
     drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 16);
     drawStatusAreaBorder(context, 4, statusAreaY + 2);
+    drawKey(context, robot.key, 309, statusAreaY + 5);
 }
 
 function createPlayer(startCoordinates) {
@@ -502,6 +519,8 @@ function attachClickHandlers() {
             levels[selectedLevelIndex].leds.forEach(function (led) {
                 led.on = false;
             });
+
+            delete robot.key;
 
             // currentLevel will be increased by one in changeGameState()
             currentLevel = selectedLevelIndex - 1;
@@ -739,7 +758,6 @@ function update(deltaTime) {
                 if (!chest.open) {
                     chest.open = true;
                     robot.key = foundKey;
-                    robot[0].src = 'robot_key_' + foundKey + '.png';
                     setStatusMessage("You collected a " + foundKey + " key!");
                 } else {
                     setStatusMessage("You can't open an already open chest");
@@ -760,7 +778,6 @@ function update(deltaTime) {
                         tile[1] === 'E' && robot.key === 'green' ||
                         tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
-                    robot[0].src = 'robot.png';
                 } else {
                     setStatusMessage("You need the correct key to open this door");
                 }
