@@ -2,7 +2,7 @@ function Tokenizer(code) {
     this.tokens = code
         .split(/([().{}])|[; \n]/)
         .filter(function (item) { return item; });
-    this.currentToken = this.tokens[0];
+    this.currentToken = null;
 }
 
 Tokenizer.prototype.getNextToken = function () {
