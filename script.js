@@ -317,9 +317,7 @@ function drawPlayingField() {
             context.drawImage(img, x, y);
         };
 
-        console.log('color', color);
         img.src = "key_" + color + ".png";
-        console.log(img.src);
     }
 
     function drawTile(context, tile, fieldItem, x, y) {
