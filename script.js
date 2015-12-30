@@ -578,7 +578,7 @@ function buildAst() {
     var ast = new TreeNode('', true);
     var script = $('textarea').val();
     var tokenizer = new Tokenizer(script);
-    var parser = new Parser(tokenizer, ast);
+    var parser = new Parser(tokenizer);
     var errorMessages = [];
 
     var currentToken;
@@ -998,9 +998,8 @@ Tokenizer.prototype.getCurrentToken = function () {
     return this.currentToken;
 };
 
-function Parser(tokenizer, ast) {
+function Parser(tokenizer) {
     this.tokenizer = tokenizer;
-    this.ast = ast;
     this.errors = [];
 }
 
