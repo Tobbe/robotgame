@@ -1,0 +1,33 @@
+{
+  "name": "robotgame",
+  "version": "0.1.0",
+  "description": "robot programming game",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jasmine JASMINE_CONFIG_PATH=jasmine.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tobbe/robotgame.git"
+  },
+  "keywords": [
+    "robots",
+    "browser",
+    "game",
+    "programming",
+    "kids",
+    "learning"
+  ],
+  "author": "Tobbe Lundberg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tobbe/robotgame/issues"
+  },
+  "homepage": "https://github.com/Tobbe/robotgame#readme",
+  "devDependencies": {
+    "jasmine": "^2.4.1"
+  }
+}
