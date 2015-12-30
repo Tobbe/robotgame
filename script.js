@@ -30,7 +30,7 @@
 //     even after passing through door
 // [x] Connect with hardware (Espruino Pico)
 // [ ] Documentation depends on level (implement using css classes and js)
-// [ ] `count`/`getCount` support
+// [x] `count`/`getCount` support
 // [ ] 'loop (cond)' support
 //       [ ] Level that requires use of `loop (cond)`
 // [ ] Document `count` and `loop (cond)`
@@ -203,7 +203,8 @@ var currentLevel = -1;
 var gameState = 'MENU';
 
 var memory = {
-    lbl: {}
+    lbl: {},
+    count: 0
 };
 var statusMessage = '';
 function setStatusMessage(msg) {
@@ -824,6 +825,14 @@ function update(deltaTime) {
             var jumpTarget = program.getInstructionPointer() +
                 parseInt(currentInstruction[1]);
             program.setInstructionPointer(jumpTarget);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'count':
+            memory.count++;
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'getCount':
+            memory.retVal = memory.count;
             robot.currentInstruction = program.nextInstruction();
             return;
     }
