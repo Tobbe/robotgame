@@ -136,6 +136,15 @@ describe('Parser', function () {
         expect(expressionArray).toEqual(['ret 3', 'getCount', 'sub', 'ret 1', 'sub']);
     });
 
+    it('can parse simple division expressions', function () {
+        var tokenizer = new Tokenizer("4 / 2");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 4', 'ret 2', 'div']);
+    });
+
     it('can parse multiplication expressions with several multiplications', function () {
         var tokenizer = new Tokenizer("1 * 2 * 3 * 4");
         tokenizer.getNextToken();
@@ -218,5 +227,41 @@ describe('Parser', function () {
             'ret 1',
             'sub',
             'eq']);
+    });
+
+    it('can parse simple expressions with parantheses', function () {
+        var tokenizer = new Tokenizer("(1 + 2)");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'ret 2', 'add']);
+    });
+
+    it('can parse expressions with parantheses', function () {
+        var tokenizer = new Tokenizer("2 / (6 - 4)");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 2', 'ret 6', 'ret 4', 'sub', 'div']);
+    });
+
+    it('can parse expressions with nested parantheses', function () {
+        var tokenizer = new Tokenizer("2 / (6 + (8 - 4))");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 2', 'ret 6', 'ret 8', 'ret 4', 'sub', 'add', 'div']);
+    });
+
+    it('can parse comparison expressions with parantheses', function () {
+        var tokenizer = new Tokenizer("2 <= (6 - 4) * 2");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 2', 'ret 6', 'ret 4', 'sub', 'ret 2', 'mul', 'lte']);
     });
 });
