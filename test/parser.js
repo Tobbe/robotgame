@@ -82,6 +82,15 @@ describe('Parser', function () {
             'jmp loop_statement_1']);
     });
 
+    it('can parse expressions with just a method invocation', function () {
+        var tokenizer = new Tokenizer("robot.moveRight()");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['right']);
+    });
+
     it('can parse simple addition expressions', function () {
         var tokenizer = new Tokenizer("1 + 1");
         tokenizer.getNextToken();
