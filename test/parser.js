@@ -81,4 +81,91 @@ describe('Parser', function () {
             'pushButton',
             'jmp loop_statement_1']);
     });
+
+    it('can parse simple addition expressions', function () {
+        var tokenizer = new Tokenizer("1 + 1");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'ret 1', 'add']);
+    });
+
+    it('can parse simple addition expressions with method invocations', function () {
+        var tokenizer = new Tokenizer("1 + robot.getCount()");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'getCount', 'add']);
+    });
+
+    it('can parse simple addition expressions with method invocations - reversed', function () {
+        var tokenizer = new Tokenizer("robot.getCount() + 1");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['getCount', 'ret 1', 'add']);
+    });
+
+    it('can parse addition expressions', function () {
+        var tokenizer = new Tokenizer("3 + 2 + 1");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 3', 'ret 2', 'add', 'ret 1', 'add']);
+    });
+
+    it('can parse subtraction expressions with method invocations', function () {
+        var tokenizer = new Tokenizer("3 - robot.getCount() - 1");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 3', 'getCount', 'sub', 'ret 1', 'sub']);
+    });
+
+    it('can parse multiplication expressions with several multiplications', function () {
+        var tokenizer = new Tokenizer("1 * 2 * 3 * 4");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'ret 2', 'mul', 'ret 3', 'mul', 'ret 4', 'mul']);
+    });
+
+    it('can parse multiplication expressions with additions', function () {
+        var tokenizer = new Tokenizer("1 + 2 * 3");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'ret 2', 'ret 3', 'mul', 'add']);
+    });
+
+    it('can parse expressions with several multiplications and subtractions', function () {
+        var tokenizer = new Tokenizer("1 - 2 * 3 - 4 - 5 * 6 * 7 - 8");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual([
+            'ret 1',
+            'ret 2',
+            'ret 3',
+            'mul',
+            'sub',
+            'ret 4',
+            'sub',
+            'ret 5',
+            'ret 6',
+            'mul',
+            'ret 7',
+            'mul',
+            'sub',
+            'ret 8',
+            'sub']);
+    });
 });

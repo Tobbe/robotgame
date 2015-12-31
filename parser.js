@@ -98,6 +98,10 @@ Parser.prototype.parseMethodBlock = function () {
     return new MethodBlock(methodInvocations);
 };
 
+Parser.prototype.parseNumber = function () {
+    return new NumberAtom(+this.tokenizer.getCurrentToken());
+};
+
 Parser.prototype.parseExpression = function () {
     function isMathOperator(token) {
         return token === '+' || token === '-' || token === '*' || token === '/';
@@ -108,15 +112,41 @@ Parser.prototype.parseExpression = function () {
     }
 
     var token = this.tokenizer.getCurrentToken();
+    var operands = [];
+    var operators = [];
     var lhs;
+    var rhs;
 
-    if (token === 'robot.') {
-        lhs = this.parseMethodInvocation();
-    } else if (!isNaN(+token)) {
-        lhs = this.parseNumber();
-    } else if (isMathOperator(token) || isComparisonOperator(token)) {
-        return new ParseExpression(token, lhs, this.parseExpression());
-    } else if (token === ')') {
+    while (true) {
+        if (token === 'robot') {
+            operands.push(this.parseMethodInvocation());
+        } else if (!isNaN(+token)) {
+            operands.push(this.parseNumber());
+        } else if (isMathOperator(token) || isComparisonOperator(token)) {
+            if (token === '+' || token === '-') {
+                while (operators.length) {
+                    rhs = operands.pop();
+                    lhs = operands.pop();
+                    operands.push(new ParseExpression(operators.pop(), lhs, rhs));
+                }
+            } else if (operators[operators.length - 1] === '*' || operators[operators.length - 1] === '/') {
+                rhs = operands.pop();
+                lhs = operands.pop();
+                operands.push(new ParseExpression(operators.pop(), lhs, rhs));
+            }
+
+            operators.push(token);
+        } else if (token === undefined || token === ')') {
+            while (operators.length) {
+                rhs = operands.pop();
+                lhs = operands.pop();
+                operands.push(new ParseExpression(operators.pop(), lhs, rhs));
+            }
+
+            return operands[0];
+        }
+
+        token = this.tokenizer.getNextToken();
     }
 };
 

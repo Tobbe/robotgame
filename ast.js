@@ -94,3 +94,30 @@ LoopStatement.prototype.toArray = function () {
     return array;
 };
 
+function NumberAtom(number) {
+    this.number = number;
+}
+
+NumberAtom.prototype.toArray = function () {
+    return ['ret ' + this.number];
+};
+
+function ParseExpression(operator, lhs, rhs) {
+    this.operator = operator;
+    this.lhs = lhs;
+    this.rhs = rhs;
+}
+
+ParseExpression.prototype.toArray = function () {
+    var operatorString;
+
+    switch (this.operator) {
+        case '+': operatorString = 'add'; break;
+        case '-': operatorString = 'sub'; break;
+        case '*': operatorString = 'mul'; break;
+        case '/': operatorString = 'div'; break;
+    }
+
+    return this.lhs.toArray().concat(this.rhs.toArray()).concat([operatorString]);
+};
+
