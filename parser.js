@@ -122,9 +122,17 @@ Parser.prototype.parseExpression = function () {
             operands.push(this.parseMethodInvocation());
         } else if (!isNaN(+token)) {
             operands.push(this.parseNumber());
-        } else if (isMathOperator(token) || isComparisonOperator(token)) {
+        } else if (isComparisonOperator(token)) {
+            while (operators.length) {
+                rhs = operands.pop();
+                lhs = operands.pop();
+                operands.push(new ParseExpression(operators.pop(), lhs, rhs));
+            }
+
+            operators.push(token);
+        } else if (isMathOperator(token)) {
             if (token === '+' || token === '-') {
-                while (operators.length) {
+                while (operators.length && !isComparisonOperator(operators[operators.length - 1])) {
                     rhs = operands.pop();
                     lhs = operands.pop();
                     operands.push(new ParseExpression(operators.pop(), lhs, rhs));

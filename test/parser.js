@@ -177,4 +177,46 @@ describe('Parser', function () {
             'ret 8',
             'sub']);
     });
+
+    it('can parse "greater than" comparison expressions', function () {
+        var tokenizer = new Tokenizer("1 > 2");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'ret 2', 'gt']);
+    });
+
+    it('can parse "less than or equal" comparison expressions', function () {
+        var tokenizer = new Tokenizer("1 <= 2");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 1', 'ret 2', 'lte']);
+    });
+
+    it('can parse "equal" comparison expressions with calculations', function () {
+        var tokenizer = new Tokenizer("1 + 2 + 3 * 4 == 5 * 4 / 3 - 1");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual([
+            'ret 1',
+            'ret 2',
+            'add',
+            'ret 3',
+            'ret 4',
+            'mul',
+            'add',
+            'ret 5',
+            'ret 4',
+            'mul',
+            'ret 3',
+            'div',
+            'ret 1',
+            'sub',
+            'eq']);
+    });
 });

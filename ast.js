@@ -112,10 +112,15 @@ ParseExpression.prototype.toArray = function () {
     var operatorString;
 
     switch (this.operator) {
-        case '+': operatorString = 'add'; break;
-        case '-': operatorString = 'sub'; break;
-        case '*': operatorString = 'mul'; break;
-        case '/': operatorString = 'div'; break;
+        case '+':  operatorString = 'add'; break;
+        case '-':  operatorString = 'sub'; break;
+        case '*':  operatorString = 'mul'; break;
+        case '/':  operatorString = 'div'; break;
+        case '>':  operatorString = 'gt';  break;
+        case '<':  operatorString = 'lt';  break;
+        case '>=': operatorString = 'gte'; break;
+        case '<=': operatorString = 'lte'; break;
+        case '==': operatorString = 'eq';  break;
     }
 
     return this.lhs.toArray().concat(this.rhs.toArray()).concat([operatorString]);
