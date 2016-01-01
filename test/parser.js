@@ -154,7 +154,7 @@ describe('Parser', function () {
         expect(expressionArray).toEqual(['ret 1', 'ret 2', 'mul', 'ret 3', 'mul', 'ret 4', 'mul']);
     });
 
-    it('can parse multiplication expressions with additions', function () {
+    it('can parse multiplication expressions with additions: 1 + 2 * 3', function () {
         var tokenizer = new Tokenizer("1 + 2 * 3");
         tokenizer.getNextToken();
         var parser = new Parser(tokenizer);
@@ -163,7 +163,7 @@ describe('Parser', function () {
         expect(expressionArray).toEqual(['ret 1', 'ret 2', 'ret 3', 'mul', 'add']);
     });
 
-    it('can parse expressions with several multiplications and subtractions', function () {
+    it('can parse expressions with several multiplications and subtractions: 1 - 2 * 3 - 4 - 5 * 6 * 7 - 8', function () {
         var tokenizer = new Tokenizer("1 - 2 * 3 - 4 - 5 * 6 * 7 - 8");
         tokenizer.getNextToken();
         var parser = new Parser(tokenizer);
@@ -205,8 +205,8 @@ describe('Parser', function () {
         expect(expressionArray).toEqual(['ret 1', 'ret 2', 'lte']);
     });
 
-    it('can parse "equal" comparison expressions with calculations', function () {
-        var tokenizer = new Tokenizer("1 + 2 + 3 * 4 == 5 * 4 / 3 - 1");
+    it('can parse "equal" comparison expressions with calculations: 1 + 2 + 3 * 4 == 1 - 5 * 4 / 3 - 1', function () {
+        var tokenizer = new Tokenizer("1 + 2 + 3 * 4 == 1 - 5 * 4 / 3 - 1");
         tokenizer.getNextToken();
         var parser = new Parser(tokenizer);
         var expression = parser.parseExpression();
@@ -219,11 +219,13 @@ describe('Parser', function () {
             'ret 4',
             'mul',
             'add',
+            'ret 1',
             'ret 5',
             'ret 4',
             'mul',
             'ret 3',
             'div',
+            'sub',
             'ret 1',
             'sub',
             'eq']);
@@ -263,5 +265,14 @@ describe('Parser', function () {
         var expression = parser.parseExpression();
         var expressionArray = expression.toArray();
         expect(expressionArray).toEqual(['ret 2', 'ret 6', 'ret 4', 'sub', 'ret 2', 'mul', 'lte']);
+    });
+
+    it('can parse division expressions with parantheses', function () {
+        var tokenizer = new Tokenizer("27 / (9 / 3)");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 27', 'ret 9', 'ret 3', 'div', 'div']);
     });
 });
