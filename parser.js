@@ -132,7 +132,9 @@ Parser.prototype.parseExpression = function () {
             operators.push(token);
         } else if (isMathOperator(token)) {
             if (token === '+' || token === '-') {
-                while (operators.length && !isComparisonOperator(operators[operators.length - 1]) && operators[operators.length - 1] !== '(') {
+                while (operators.length &&
+                        !isComparisonOperator(operators[operators.length - 1]) &&
+                        operators[operators.length - 1] !== '(') {
                     rhs = operands.pop();
                     lhs = operands.pop();
                     operands.push(new ParseExpression(operators.pop(), lhs, rhs));
