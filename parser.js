@@ -103,12 +103,39 @@ Parser.prototype.parseNumber = function () {
 };
 
 Parser.prototype.parseExpression = function () {
-    function isMathOperator(token) {
-        return token === '+' || token === '-' || token === '*' || token === '/';
+    function isAddSubOperator(token) {
+        return token === '+' || token === '-';
+    }
+    
+    function isMulDivOperator(token) {
+        return token === '*' || token === '/';
+    }
+
+    function isParentheses(token) {
+        return token === '(' || token === ')';
     }
 
     function isComparisonOperator(token) {
         return token === '<' || token === '>' || token === '<=' || token === '>=' || token === '==';
+    }
+
+    function isOperator(token) {
+        return isAddSubOperator(token) ||
+            isMulDivOperator(token) ||
+            isParentheses(token) ||
+            isComparisonOperator(token);
+    }
+
+    function getOperatorPrecedence(token) {
+        if (isComparisonOperator(token)) {
+            return 1;
+        } else if (isAddSubOperator(token)) {
+            return 2;
+        } else if (isMulDivOperator(token)) {
+            return 3;
+        } else if (isParentheses(token)) {
+            return 4;
+        }
     }
 
     var token = this.tokenizer.getCurrentToken();
@@ -122,41 +149,18 @@ Parser.prototype.parseExpression = function () {
             operands.push(this.parseMethodInvocation());
         } else if (!isNaN(+token)) {
             operands.push(this.parseNumber());
-        } else if (isComparisonOperator(token)) {
-            while (operators.length) {
+        } else if (isOperator(token)) {
+            function lastInArray(array) {
+                return array[array.length - 1];
+            }
+
+            while (getOperatorPrecedence(token) <= getOperatorPrecedence(lastInArray(operators))) {
                 rhs = operands.pop();
                 lhs = operands.pop();
                 operands.push(new ParseExpression(operators.pop(), lhs, rhs));
             }
 
             operators.push(token);
-        } else if (isMathOperator(token)) {
-            if (token === '+' || token === '-') {
-                while (operators.length &&
-                        !isComparisonOperator(operators[operators.length - 1]) &&
-                        operators[operators.length - 1] !== '(') {
-                    rhs = operands.pop();
-                    lhs = operands.pop();
-                    operands.push(new ParseExpression(operators.pop(), lhs, rhs));
-                }
-            } else if (operators[operators.length - 1] === '*' || operators[operators.length - 1] === '/') {
-                rhs = operands.pop();
-                lhs = operands.pop();
-                operands.push(new ParseExpression(operators.pop(), lhs, rhs));
-            }
-
-            operators.push(token);
-        } else if (token === '(' || token === ')') {
-            if (token === ')') {
-                while (operators.length && operators[operators.length - 1] !== '(') {
-                    rhs = operands.pop();
-                    lhs = operands.pop();
-                    operands.push(new ParseExpression(operators.pop(), lhs, rhs));
-                }
-                operators.pop(); // Remove '('
-            } else {
-                operators.push(token);
-            }
         } else if (token === undefined) {
             while (operators.length) {
                 rhs = operands.pop();
