@@ -126,7 +126,6 @@ Parser.prototype.parseExpression = function () {
     function isOperator(token) {
         return isAddSubOperator(token) ||
             isMulDivOperator(token) ||
-            isParentheses(token) ||
             isComparisonOperator(token);
     }
 
@@ -137,8 +136,8 @@ Parser.prototype.parseExpression = function () {
             return 2;
         } else if (isMulDivOperator(token)) {
             return 3;
-        } else if (isParentheses(token)) {
-            return 4;
+        } else {
+            return -1;
         }
     }
 
@@ -153,8 +152,22 @@ Parser.prototype.parseExpression = function () {
             operands.push(this.parseMethodInvocation());
         } else if (!isNaN(+token)) {
             operands.push(this.parseNumber());
+        } else if (isParentheses(token)) {
+            if (token === '(') {
+                operators.push(token);
+            } else {
+                while (lastInArray(operators) !== '(') {
+                    rhs = operands.pop();
+                    lhs = operands.pop();
+                    operands.push(new ParseExpression(operators.pop(), lhs, rhs));
+                }
+
+                operators.pop();
+            }
         } else if (isOperator(token)) {
-            while (getOperatorPrecedence(token) <= getOperatorPrecedence(lastInArray(operators))) {
+            while (operands.length > 1 &&
+                    getOperatorPrecedence(token) <=
+                        getOperatorPrecedence(lastInArray(operators))) {
                 rhs = operands.pop();
                 lhs = operands.pop();
                 operands.push(new ParseExpression(operators.pop(), lhs, rhs));

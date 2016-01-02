@@ -231,7 +231,7 @@ describe('Parser', function () {
             'eq']);
     });
 
-    /*it('can parse simple expressions with parantheses', function () {
+    it('can parse simple expressions with parantheses', function () {
         var tokenizer = new Tokenizer("(1 + 2)");
         tokenizer.getNextToken();
         var parser = new Parser(tokenizer);
@@ -274,5 +274,14 @@ describe('Parser', function () {
         var expression = parser.parseExpression();
         var expressionArray = expression.toArray();
         expect(expressionArray).toEqual(['ret 27', 'ret 9', 'ret 3', 'div', 'div']);
-    });*/
+    });
+
+    it('can parse expressions with several operations in parantheses', function () {
+        var tokenizer = new Tokenizer("27 / (6 - 9 / 3)");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var expression = parser.parseExpression();
+        var expressionArray = expression.toArray();
+        expect(expressionArray).toEqual(['ret 27', 'ret 6', 'ret 9', 'ret 3', 'div', 'sub', 'div']);
+    });
 });
