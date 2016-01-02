@@ -103,6 +103,10 @@ Parser.prototype.parseNumber = function () {
 };
 
 Parser.prototype.parseExpression = function () {
+    function lastInArray(array) {
+        return array[array.length - 1];
+    }
+
     function isAddSubOperator(token) {
         return token === '+' || token === '-';
     }
@@ -150,10 +154,6 @@ Parser.prototype.parseExpression = function () {
         } else if (!isNaN(+token)) {
             operands.push(this.parseNumber());
         } else if (isOperator(token)) {
-            function lastInArray(array) {
-                return array[array.length - 1];
-            }
-
             while (getOperatorPrecedence(token) <= getOperatorPrecedence(lastInArray(operators))) {
                 rhs = operands.pop();
                 lhs = operands.pop();
