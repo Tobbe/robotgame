@@ -546,6 +546,8 @@ function update(deltaTime) {
     var tileCoords = robot.currentTileCoords();
     var currentInstruction = (robot.currentInstruction || '').split(' ');
     var item;
+    var lhs;
+    var rhs;
 
     switch (currentInstruction[0]) {
         case 'right':
@@ -677,6 +679,19 @@ function update(deltaTime) {
         case 'getCount':
             memory.retVal.push(memory.count);
             robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'ret':
+            memory.retVal.push(currentInstruction[1]);
+            return;
+        case 'add':
+            rhs = memory.retVal.pop();
+            lhs = memory.retVal.pop();
+            memory.retVal.push(lsh + rhs);
+            return;
+        case 'lt':
+            rhs = memory.retVal.pop();
+            lhs = memory.retVal.pop();
+            memory.retVal.push(lhs < rhs);
             return;
     }
 
