@@ -14,6 +14,7 @@
  * F = Blue Door
  */
 var levels = [{}, {}, {}, {}, {}];
+levels[0].name = "1: Intro";
 levels[0].field = [
     ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
     ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
@@ -43,6 +44,7 @@ levels[0].buttons = [{
         }
     }];
 
+levels[1].name = "2: Maze";
 levels[1].field = [
     ['4A', '0-', '0-', '0-', '0-', '0-'],
     ['5-', '0-', '0-', '6-', 'C-', '0-'],
@@ -63,6 +65,7 @@ levels[1].buttons = [{
         }
     }];
 
+levels[2].name = "3: Doors";
 levels[2].field = [
     ['4-', '0-', '6-', 'AD', 'C-', '0-'],
     ['3B', 'AC', 'F-', 'AE', 'F-', 'C-'],
@@ -110,6 +113,7 @@ levels[2].buttons = [{
 levels[2].doors = [{open: false}, {open: false}, {open: false}];
 levels[2].chests = [{open: false}];
 
+levels[3].name = "4: Loop";
 levels[3].field = [
     ['2B', 'C-', '0-', '0-', '0-', '0-'],
     ['0-', '3-', 'C-', '0-', '0-', '0-'],
@@ -130,6 +134,7 @@ levels[3].buttons = [{
         }
     }];
 
+levels[4].name = "5: Six instructions";
 levels[4].field = [
     ['0-', '6-', 'A-', 'A-', 'A-', 'CB'],
     ['0-', '5-', '0-', '0-', '4-', '5-'],
@@ -165,4 +170,8 @@ function getCurrentLevelIndex() {
 
 function setCurrentLevelIndex(currentLevelIndex) {
     currentLevel = currentLevelIndex;
+}
+
+function getNextLevelName() {
+    return levels[currentLevel + 1].name;
 }

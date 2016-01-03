@@ -91,7 +91,7 @@ function getStartPosition() {
 function drawGameMenu() {
     var context = $('.game_menu')[0].getContext('2d', {alpha: false});
     var img = new Image();
-    var text = "Click to start level " + (getCurrentLevelIndex() + 2);
+    var text = "Click to start level " + getNextLevelName();
 
     img.onload = function () {
         context.drawImage(img, 0, 0);
