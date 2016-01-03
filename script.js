@@ -47,158 +47,6 @@ var last = timestamp();
 var tokenizer;
 var program;
 
-/**
- * First position
- * 1 = Open top
- * 2 = Open right
- * 4 = Open down
- * 8 = Open left
- *
- * Second position
- * A = Start position
- * B = Button
- * C = Chest
- * D = Red Door
- * E = Green Door
- * F = Blue Door
- */
-var levels = [{}, {}, {}, {}, {}];
-levels[0].field = [
-    ['6-', 'E-', 'E-', 'E-', 'E-', 'C-'],
-    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
-    ['7-', 'FB', 'FA', 'FB', 'F-', 'D-'],
-    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
-    ['7-', 'F-', 'F-', 'F-', 'F-', 'D-'],
-    ['3-', 'B-', 'B-', 'B-', 'B-', '9-']];
-levels[0].items = [[], [], [], [], [], []];
-levels[0].items[2][1] = {
-        key: 'buttons',
-        index: '0'
-    };
-levels[0].items[2][3] = {
-        key: 'buttons',
-        index: '1'
-    };
-levels[0].leds = [{on: false}, {on: false}];
-levels[0].buttons = [{
-        controlls: {
-            key: 'leds',
-            index: 0
-        }
-    }, {
-        controlls: {
-            key: 'leds',
-            index: 1
-        }
-    }];
-
-levels[1].field = [
-    ['4A', '0-', '0-', '0-', '0-', '0-'],
-    ['5-', '0-', '0-', '6-', 'C-', '0-'],
-    ['3-', 'A-', 'A-', '9-', '1B', '0-'],
-    ['0-', '0-', '0-', '0-', '0-', '0-'],
-    ['0-', '0-', '0-', '0-', '0-', '0-'],
-    ['0-', '0-', '0-', '0-', '0-', '0-']];
-levels[1].items = [[], [], [], [], [], []];
-levels[1].items[2][4] = {
-        key: 'buttons',
-        index: '0'
-    };
-levels[1].leds = [{on: false}];
-levels[1].buttons = [{
-        controlls: {
-            key: 'leds',
-            index: 0
-        }
-    }];
-
-levels[2].field = [
-    ['4-', '0-', '6-', 'AD', 'C-', '0-'],
-    ['3B', 'AC', 'F-', 'AE', 'F-', 'C-'],
-    ['0-', '0-', '3-', 'AF', '9-', '5-'],
-    ['0-', '0-', '0-', '0-', '0-', '5-'],
-    ['0-', '0-', '0-', '0-', '0-', '5-'],
-    ['0-', '0-', '0-', '0-', '0-', '1B']];
-levels[2].items = [[], [], [], [], [], []];
-levels[2].items[1][0] = {
-        key: 'buttons',
-        index: '0'
-    };
-levels[2].items[5][5] = {
-        key: 'buttons',
-        index: '1'
-    };
-levels[2].items[0][3] = {
-        key: 'doors',
-        index: 0
-    };
-levels[2].items[1][3] = {
-        key: 'doors',
-        index: 1
-    };
-levels[2].items[2][3] = {
-        key: 'doors',
-        index: 2
-    };
-levels[2].items[1][1] = {
-        key: 'chests',
-        index: 0
-    };
-levels[2].leds = [{on: false}, {on: false}];
-levels[2].buttons = [{
-        controlls: {
-            key: 'leds',
-            index: 0
-        }
-    }, {
-        controlls: {
-            key: 'leds',
-            index: 1
-        }
-    }];
-levels[2].doors = [{open: false}, {open: false}, {open: false}];
-levels[2].chests = [{open: false}];
-
-levels[3].field = [
-    ['2B', 'C-', '0-', '0-', '0-', '0-'],
-    ['0-', '3-', 'C-', '0-', '0-', '0-'],
-    ['0-', '0-', '3-', 'C-', '0-', '0-'],
-    ['0-', '0-', '0-', '3-', 'C-', '0-'],
-    ['0-', '0-', '0-', '0-', '3-', 'C-'],
-    ['0-', '0-', '0-', '0-', '0-', '1A']];
-levels[3].items = [[], [], [], [], [], []];
-levels[3].items[0][0] = {
-        key: 'buttons',
-        index: '0'
-    };
-levels[3].leds = [{on: false}];
-levels[3].buttons = [{
-        controlls: {
-            key: 'leds',
-            index: 0
-        }
-    }];
-
-levels[4].field = [
-    ['0-', '6-', 'A-', 'A-', 'A-', 'CB'],
-    ['0-', '5-', '0-', '0-', '4-', '5-'],
-    ['0-', '3-', 'C-', '6-', 'B-', 'D-'],
-    ['0-', '0-', '7-', '9-', '0-', '5-'],
-    ['6-', '8A', '5-', '6-', 'C-', '5-'],
-    ['3-', 'A-', 'B-', '9-', '3-', '9-']];
-levels[4].items = [[], [], [], [], [], []];
-levels[4].items[0][5] = {
-        key: 'buttons',
-        index: '0'
-    };
-levels[4].leds = [{on: false}];
-levels[4].buttons = [{
-        controlls: {
-            key: 'leds',
-            index: 0
-        }
-    }];
-var currentLevel = -1;
 
 var gameState = 'MENU';
 
@@ -229,9 +77,9 @@ $(function () {
 });
 
 function getStartPosition() {
-    for (var y = 0; y < levels[currentLevel].field.length; y++) {
-        for (var x = 0; x < levels[currentLevel].field[y].length; x++) {
-            if (levels[currentLevel].field[y][x][1] === 'A') {
+    for (var y = 0; y < getCurrentLevel().field.length; y++) {
+        for (var x = 0; x < getCurrentLevel().field[y].length; x++) {
+            if (getCurrentLevel().field[y][x][1] === 'A') {
                 return {x: x, y: y};
             }
         }
@@ -243,7 +91,7 @@ function getStartPosition() {
 function drawGameMenu() {
     var context = $('.game_menu')[0].getContext('2d', {alpha: false});
     var img = new Image();
-    var text = "Click to start level " + (currentLevel + 2);
+    var text = "Click to start level " + (getCurrentLevelIndex() + 2);
 
     img.onload = function () {
         context.drawImage(img, 0, 0);
@@ -271,7 +119,7 @@ function drawPlayingField() {
         for (var i = 0; i < ledCount; i++) {
             context.beginPath();
             context.arc(x - i * 24, y, 10, 2 * Math.PI, false);
-            if (levels[currentLevel].leds[ledCount - 1 - i].on) {
+            if (getCurrentLevel().leds[ledCount - 1 - i].on) {
                 context.fillStyle = 'yellow';
             } else {
                 context.fillStyle = 'white';
@@ -377,7 +225,7 @@ function drawPlayingField() {
         }
 
         if (tile[1] === 'D') {
-            door = levels[currentLevel].doors[fieldItem.index];
+            door = getCurrentLevel().doors[fieldItem.index];
             if (!door.open) {
                 drawItem('door_red', x, y);
             } else {
@@ -386,7 +234,7 @@ function drawPlayingField() {
         }
 
         if (tile[1] === 'E') {
-            door = levels[currentLevel].doors[fieldItem.index];
+            door = getCurrentLevel().doors[fieldItem.index];
             if (!door.open) {
                 drawItem('door_green', x, y);
             } else {
@@ -395,7 +243,7 @@ function drawPlayingField() {
         }
 
         if (tile[1] === 'F') {
-            door = levels[currentLevel].doors[fieldItem.index];
+            door = getCurrentLevel().doors[fieldItem.index];
             if (!door.open) {
                 drawItem('door_blue', x, y);
             } else {
@@ -411,16 +259,16 @@ function drawPlayingField() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.lineWidth = 2;
 
-    levels[currentLevel].field.forEach(function (line, lineIndex) {
+    getCurrentLevel().field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
-            var item = levels[currentLevel].items[lineIndex][tileIndex];
+            var item = getCurrentLevel().items[lineIndex][tileIndex];
             drawTile(context, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
 
-    var statusAreaY = levels[currentLevel].field.length * 68 + 10;
-    var statusAreaX = levels[currentLevel].field[0].length * 68;
-    drawLEDs(levels[currentLevel].leds.length, context, statusAreaX - 12, statusAreaY + 16);
+    var statusAreaY = getCurrentLevel().field.length * 68 + 10;
+    var statusAreaX = getCurrentLevel().field[0].length * 68;
+    drawLEDs(getCurrentLevel().leds.length, context, statusAreaX - 12, statusAreaY + 16);
     drawStatusAreaBorder(context, 4, statusAreaY + 2);
     drawKey(context, robot.key, 309, statusAreaY + 5);
 }
@@ -465,19 +313,19 @@ function attachClickHandlers() {
         $('input.clear').prop("disabled", false);
         $('textarea').prop("disabled", false);
 
-        if (levels[currentLevel].chests) {
-            levels[currentLevel].chests.forEach(function (chest) {
+        if (getCurrentLevel().chests) {
+            getCurrentLevel().chests.forEach(function (chest) {
                 chest.open = false;
             });
         }
 
-        if (levels[currentLevel].doors) {
-            levels[currentLevel].doors.forEach(function (door) {
+        if (getCurrentLevel().doors) {
+            getCurrentLevel().doors.forEach(function (door) {
                 door.open = false;
             });
         }
 
-        levels[currentLevel].leds.forEach(function (led) {
+        getCurrentLevel().leds.forEach(function (led) {
             led.on = false;
         });
 
@@ -503,26 +351,26 @@ function attachClickHandlers() {
             var num = -48 + event.which;
             var selectedLevelIndex = num - 1;
 
-            if (levels[selectedLevelIndex].chests) {
-                levels[selectedLevelIndex].chests.forEach(function (chest) {
+            if (getLevel(selectedLevelIndex).chests) {
+                getLevel(selectedLevelIndex).chests.forEach(function (chest) {
                     chest.open = false;
                 });
             }
 
-            if (levels[selectedLevelIndex].doors) {
-                levels[selectedLevelIndex].doors.forEach(function (door) {
+            if (getLevel(selectedLevelIndex).doors) {
+                getLevel(selectedLevelIndex).doors.forEach(function (door) {
                     door.open = false;
                 });
             }
 
-            levels[selectedLevelIndex].leds.forEach(function (led) {
+            getLevel(selectedLevelIndex).leds.forEach(function (led) {
                 led.on = false;
             });
 
             delete robot.key;
 
             // currentLevel will be increased by one in changeGameState()
-            currentLevel = selectedLevelIndex - 1;
+            setCurrentLevelIndex(selectedLevelIndex - 1);
             changeGameState();
         }
     });
@@ -530,7 +378,7 @@ function attachClickHandlers() {
 
 function changeGameState() {
     if (gameState === 'MENU') {
-        currentLevel++;
+        setCurrentLevelIndex(getCurrentLevelIndex() + 1);
         $('.game_area textarea')
             .val('')
             .prop("disabled", false);
@@ -548,7 +396,7 @@ function changeGameState() {
         drawLevelCompletedSplash();
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
-        for (var i = 0; i < levels[currentLevel].leds.length; i++) {
+        for (var i = 0; i < getCurrentLevel().leds.length; i++) {
             $.ajax('http://localhost:8080/' + i, {
                 method: "PUT",
                 data: "off",
@@ -556,8 +404,8 @@ function changeGameState() {
         }
         gameState = 'LEVEL_COMPLETED';
     } else {
-        if (currentLevel === levels.length - 1) {
-            currentLevel = -1;
+        if (getCurrentLevelIndex() === levels.length - 1) {
+            setCurrentLevelIndex(-1);
         }
 
         $('.level_completed_splash').hide();
@@ -630,8 +478,8 @@ Program.prototype.setInstructionPointer = function (instructionPointer) {
 
 function update(deltaTime) {
     function levelCompleted() {
-        for (var i = 0; i < levels[currentLevel].leds.length; i++) {
-            if (!levels[currentLevel].leds[i].on) {
+        for (var i = 0; i < getCurrentLevel().leds.length; i++) {
+            if (!getCurrentLevel().leds[i].on) {
                 return false;
             }
         }
@@ -641,11 +489,11 @@ function update(deltaTime) {
 
     function standingOnClosedDoor() {
         var tileCoords = robot.currentTileCoords();
-        var item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+        var item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
         var closedDoor = false;
 
         if (item && item.key === 'doors') {
-            closedDoor = !levels[currentLevel].doors[item.index].open;
+            closedDoor = !getCurrentLevel().doors[item.index].open;
         }
 
         return closedDoor;
@@ -653,7 +501,7 @@ function update(deltaTime) {
 
     function movingThroughWall(direction) {
         var tileCoords = robot.currentTileCoords();
-        var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
+        var tile = getCurrentLevel().field[tileCoords.y][tileCoords.x];
         var tileOpenings = parseInt(tile[0], 16);
 
         switch (direction) {
@@ -729,11 +577,11 @@ function update(deltaTime) {
             break;
         case 'pushButton':
             if (robot.queue().length === 0 && !robot.instructionCompleted) {
-                item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+                item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
                 if (item && item.key === 'buttons') {
                     robotPushAnimation(function () {
-                        var button = levels[currentLevel].buttons[item.index];
-                        var controlledItem = levels[currentLevel][button.controlls.key][button.controlls.index];
+                        var button = getCurrentLevel().buttons[item.index];
+                        var controlledItem = getCurrentLevel()[button.controlls.key][button.controlls.index];
                         controlledItem.on = !controlledItem.on;
                         var url = 'http://localhost:8080/' + button.controlls.index;
                         $.ajax(url, {
@@ -751,9 +599,9 @@ function update(deltaTime) {
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
-            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'chests') {
-                var chest = levels[currentLevel].chests[item.index];
+                var chest = getCurrentLevel().chests[item.index];
                 if (!chest.open) {
                     chest.open = true;
                     robot.key = foundKey;
@@ -768,10 +616,10 @@ function update(deltaTime) {
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
-            var tile = levels[currentLevel].field[tileCoords.y][tileCoords.x];
-            item = levels[currentLevel].items[tileCoords.y][tileCoords.x];
+            var tile = getCurrentLevel().field[tileCoords.y][tileCoords.x];
+            item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'doors') {
-                var door = levels[currentLevel].doors[item.index];
+                var door = getCurrentLevel().doors[item.index];
 
                 if (tile[1] === 'D' && robot.key === 'red' ||
                         tile[1] === 'E' && robot.key === 'green' ||
