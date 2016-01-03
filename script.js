@@ -52,7 +52,8 @@ var gameState = 'MENU';
 
 var memory = {
     lbl: {},
-    count: 0
+    count: 0,
+    retVal: []
 };
 var statusMessage = '';
 function setStatusMessage(msg) {
@@ -634,19 +635,19 @@ function update(deltaTime) {
             robot.instructionCompleted = true;
             break;
         case 'hasRedKey':
-            memory.retVal = robot.key === 'red';
+            memory.retVal.push(robot.key === 'red');
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'hasGreenKey':
-            memory.retVal = robot.key === 'green';
+            memory.retVal.push(robot.key === 'green');
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'hasBlueKey':
-            memory.retVal = robot.key === 'blue';
+            memory.retVal.push(robot.key === 'blue');
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'cond':
-            if (memory.retVal) {
+            if (memory.retVal[memory.retVal.length - 1]) {
                 var trueJumpTarget = program.getInstructionPointer() +
                     parseInt(currentInstruction[1]);
                 program.setInstructionPointer(trueJumpTarget);
@@ -674,7 +675,7 @@ function update(deltaTime) {
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'getCount':
-            memory.retVal = memory.count;
+            memory.retVal.push(memory.count);
             robot.currentInstruction = program.nextInstruction();
             return;
     }
