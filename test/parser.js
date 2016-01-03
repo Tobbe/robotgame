@@ -240,7 +240,7 @@ describe('Parser', function () {
         expect(expressionArray).toEqual(['ret 1', 'ret 2', 'add']);
     });
 
-    it('can parse expressions with parantheses', function () {
+    it('can parse expressions with parantheses: 2 / (6 - 4)', function () {
         var tokenizer = new Tokenizer("2 / (6 - 4)");
         tokenizer.getNextToken();
         var parser = new Parser(tokenizer);

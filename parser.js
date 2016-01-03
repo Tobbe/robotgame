@@ -126,6 +126,7 @@ Parser.prototype.parseExpression = function () {
     function isOperator(token) {
         return isAddSubOperator(token) ||
             isMulDivOperator(token) ||
+            isParentheses(token) ||
             isComparisonOperator(token);
     }
 
@@ -136,9 +137,16 @@ Parser.prototype.parseExpression = function () {
             return 2;
         } else if (isMulDivOperator(token)) {
             return 3;
-        } else {
+        } else if (token === ')') {
             return -1;
+        } else if (token === '(') {
+            return -2;
         }
+    }
+
+    function lessOrEqualPrecedence(operator1, operator2) {
+        return getOperatorPrecedence(operator1) <=
+            getOperatorPrecedence(operator2);
     }
 
     var token = this.tokenizer.getCurrentToken();
@@ -152,28 +160,19 @@ Parser.prototype.parseExpression = function () {
             operands.push(this.parseMethodInvocation());
         } else if (!isNaN(+token)) {
             operands.push(this.parseNumber());
-        } else if (isParentheses(token)) {
-            if (token === '(') {
-                operators.push(token);
-            } else {
-                while (lastInArray(operators) !== '(') {
-                    rhs = operands.pop();
-                    lhs = operands.pop();
-                    operands.push(new ParseExpression(operators.pop(), lhs, rhs));
-                }
-
-                operators.pop();
-            }
         } else if (isOperator(token)) {
-            while (operands.length > 1 &&
-                    getOperatorPrecedence(token) <=
-                        getOperatorPrecedence(lastInArray(operators))) {
+            while (operands.length > 1 && token !== '(' &&
+                    lessOrEqualPrecedence(token, lastInArray(operators))) {
                 rhs = operands.pop();
                 lhs = operands.pop();
                 operands.push(new ParseExpression(operators.pop(), lhs, rhs));
             }
 
-            operators.push(token);
+            if (token === ')') {
+                operators.pop();
+            } else {
+                operators.push(token);
+            }
         } else if (token === undefined) {
             while (operators.length) {
                 rhs = operands.pop();
