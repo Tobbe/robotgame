@@ -164,14 +164,20 @@ function getLevel(index) {
     return levels[index];
 }
 
-function getCurrentLevelIndex() {
-    return currentLevel;
-}
-
 function setCurrentLevelIndex(currentLevelIndex) {
     currentLevel = currentLevelIndex;
 }
 
 function getNextLevelName() {
-    return levels[currentLevel + 1].name;
+    var nextLevel = currentLevel === levels.length -1 ?
+        0 : currentLevel + 1;
+    return levels[nextLevel].name;
+}
+
+function moveToNextLevel() {
+    currentLevel++;
+
+    if (currentLevel === levels.length) {
+        currentLevel = 0;
+    }
 }

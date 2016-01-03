@@ -378,7 +378,7 @@ function attachClickHandlers() {
 
 function changeGameState() {
     if (gameState === 'MENU') {
-        setCurrentLevelIndex(getCurrentLevelIndex() + 1);
+        moveToNextLevel();
         $('.game_area textarea')
             .val('')
             .prop("disabled", false);
@@ -404,10 +404,6 @@ function changeGameState() {
         }
         gameState = 'LEVEL_COMPLETED';
     } else {
-        if (getCurrentLevelIndex() === levels.length - 1) {
-            setCurrentLevelIndex(-1);
-        }
-
         $('.level_completed_splash').hide();
         $('.game_menu').show();
         drawGameMenu();
