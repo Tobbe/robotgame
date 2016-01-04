@@ -47,6 +47,11 @@ var last = timestamp();
 var tokenizer;
 var program;
 
+var memory = {
+    lbl: {},
+    count: 0,
+    retVal: []
+};
 
 var gameState = 'MENU';
 
@@ -514,7 +519,7 @@ function update(deltaTime) {
         robotPushAnimation(robotPushAnimationTriggerAction);
     }
 
-    handleInstruction(robot, program, robotPushAnimationWithTriggerAction, drawPlayingField, setStatusMessage);
+    handleInstruction(robot, program, memory, robotPushAnimationWithTriggerAction, drawPlayingField, setStatusMessage);
 
     if (robot.instructionCompleted) {
         robot.currentInstruction = undefined;

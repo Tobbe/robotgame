@@ -38,17 +38,11 @@ function move() {
     }
 }
 
-var memory = {
-    lbl: {},
-    count: 0,
-    retVal: []
-};
-
 var item;
 var lhs;
 var rhs;
 
-function handleInstruction(robot, program, robotPushAnimation, drawPlayingField, setStatusMessage) {
+function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayingField, setStatusMessage) {
     var instruction = (robot.currentInstruction || '').split(' ');
 
     var tileCoords = robot.currentTileCoords();
