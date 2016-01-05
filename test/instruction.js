@@ -107,4 +107,23 @@ describe('Instruction', function () {
         executeInstructions(['ret 7', 'ret 77', 'eq']);
         expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
     });
+
+    it('can count, and return the count value', function () {
+        executeInstructions(['count', 'count', 'count', 'getCount']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(3);
+    });
+
+    it('can compare the count with a math expression', function () {
+        executeInstructions([
+            'count',
+            'count',
+            'getCount',
+            'ret 15',
+            'ret 5',
+            'div',
+            'ret 1',
+            'sub',
+            'lte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+    });
 });
