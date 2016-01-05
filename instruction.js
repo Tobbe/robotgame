@@ -44,8 +44,8 @@ var rhs;
 
 function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayingField, setStatusMessage) {
     var instruction = (robot.currentInstruction || '').split(' ');
+    var tileCoords;
 
-    var tileCoords = robot.currentTileCoords();
     switch (instruction[0]) {
         case 'right':
         case 'left':
@@ -73,6 +73,7 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             break;
         case 'pushButton':
             if (robot.queue().length === 0 && !robot.instructionCompleted) {
+                tileCoords = robot.currentTileCoords();
                 item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
                 if (item && item.key === 'buttons') {
                     robotPushAnimation();
@@ -85,6 +86,7 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
         case 'openChest':
             var keys = ['red', 'green', 'blue'];
             var foundKey = keys[Math.floor(Math.random() * keys.length)];
+            tileCoords = robot.currentTileCoords();
             item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'chests') {
                 var chest = getCurrentLevel().chests[item.index];
@@ -102,6 +104,7 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             robot.instructionCompleted = true;
             break;
         case 'openDoor':
+            tileCoords = robot.currentTileCoords();
             var tile = getCurrentLevel().field[tileCoords.y][tileCoords.x];
             item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
             if (item && item.key === 'doors') {
