@@ -172,16 +172,19 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             return;
         case 'ret':
             memory.retVal.push(instruction[1]);
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'add':
-            rhs = memory.retVal.pop();
-            lhs = memory.retVal.pop();
-            memory.retVal.push(lsh + rhs);
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs + rhs);
+            robot.currentInstruction = program.nextInstruction();
             return;
         case 'lt':
-            rhs = memory.retVal.pop();
-            lhs = memory.retVal.pop();
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
             memory.retVal.push(lhs < rhs);
+            robot.currentInstruction = program.nextInstruction();
             return;
     }
 }
