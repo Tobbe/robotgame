@@ -59,6 +59,11 @@ describe('Instruction', function () {
         expect(memory.retVal[memory.retVal.length - 1]).toEqual(6);
     });
 
+    it('can calculate the result of a simple division expression', function () {
+        executeInstructions(['ret 6', 'ret 2', 'div']);
+        expect(memory.retVal[memory.retVal.length - 1]).toEqual(3);
+    });
+
     it('can check if one number is less or equal to another', function () {
         executeInstructions(['ret 5', 'ret 13', 'lte']);
         expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
