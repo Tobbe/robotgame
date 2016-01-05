@@ -52,5 +52,30 @@ describe('Program', function () {
             program.nextInstruction();
             expect(program.getInstructionPointer()).toEqual(initialInstructionPointer + 1);
         });
+
+        it('lets one set the instruction pointer', function () {
+            function Ast(instructions) {
+                this.instructions = instructions;
+            }
+
+            Ast.prototype.toArray = function () {
+                return this.instructions;
+            };
+
+            var ast = new Ast(['ret 1', 'ret 2']);
+            var program = new Program(ast);
+
+            var initialInstructionPointer = program.getInstructionPointer();
+            var firstInstruction = program.nextInstruction();
+            var instructionPointerToFirstInstruction = program.getInstructionPointer();
+            var secondInstruction = program.nextInstruction();
+            var instructionPointerToSecondInstruction = program.getInstructionPointer();
+            expect(program.getInstructionPointer()).not.toEqual(instructionPointerToFirstInstruction);
+            program.setInstructionPointer(initialInstructionPointer);
+            expect(program.nextInstruction()).toEqual(firstInstruction);
+            expect(program.getInstructionPointer()).toEqual(instructionPointerToFirstInstruction);
+            expect(program.nextInstruction()).toEqual(secondInstruction);
+            expect(program.getInstructionPointer()).toEqual(instructionPointerToSecondInstruction);
+        });
     });
 });

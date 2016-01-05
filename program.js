@@ -12,5 +12,5 @@ Program.prototype.getInstructionPointer = function () {
 };
 
 Program.prototype.setInstructionPointer = function (instructionPointer) {
-    this.instructionPointer = instructionPointer - 1;
+    this.instructionPointer = instructionPointer;
 };

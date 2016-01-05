@@ -139,7 +139,7 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             if (memory.retVal[memory.retVal.length - 1]) {
                 var trueJumpTarget = program.getInstructionPointer() +
                     parseInt(instruction[1]);
-                program.setInstructionPointer(trueJumpTarget);
+                program.setInstructionPointer(trueJumpTarget - 1);
             }
 
             robot.currentInstruction = program.nextInstruction();
@@ -150,13 +150,13 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'jmp':
-            program.setInstructionPointer(memory.lbl[instruction[1]]);
+            program.setInstructionPointer(memory.lbl[instruction[1]] - 1);
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'jmpr':
             var jumpTarget = program.getInstructionPointer() +
                 parseInt(instruction[1]);
-            program.setInstructionPointer(jumpTarget);
+            program.setInstructionPointer(jumpTarget - 1);
             robot.currentInstruction = program.nextInstruction();
             return;
         case 'count':
