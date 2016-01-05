@@ -301,7 +301,7 @@ function setPlayerPosition(coords) {
 
 function attachClickHandlers() {
     $('input.run').on('click', function() {
-        program = new Program(buildAst());
+        program = new Program(buildAst().toArray());
         robot.currentInstruction = program.nextInstruction();
         robot.instructionCompleted = false;
         $('textarea').prop("disabled", true);
@@ -338,7 +338,7 @@ function attachClickHandlers() {
         delete robot.key;
         robot[0].src = 'robot.png';
         setPlayerPosition(getStartPosition());
-        program = new Program(buildAst());
+        program = new Program(buildAst().toArray());
         $('.field_item').remove();
         drawPlayingField();
     });

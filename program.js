@@ -1,5 +1,5 @@
-function Program(ast) {
-    this.instructionArray = ast.toArray();
+function Program(instructionArray) {
+    this.instructionArray = instructionArray;
     this.instructionPointer = -1;
 }
 
