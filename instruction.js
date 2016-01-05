@@ -180,10 +180,52 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             memory.retVal.push(lhs + rhs);
             robot.currentInstruction = program.nextInstruction();
             return;
+        case 'sub':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs - rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'mul':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs * rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'div':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs / rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
         case 'lt':
             rhs = +memory.retVal.pop();
             lhs = +memory.retVal.pop();
             memory.retVal.push(lhs < rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'lte':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs <= rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'gt':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs > rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'gte':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs >= rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'eq':
+            rhs = +memory.retVal.pop();
+            lhs = +memory.retVal.pop();
+            memory.retVal.push(lhs === rhs);
             robot.currentInstruction = program.nextInstruction();
             return;
     }

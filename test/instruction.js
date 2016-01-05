@@ -48,4 +48,58 @@ describe('Instruction', function () {
         executeInstructions(['ret 5', 'ret 7', 'add', 'ret 3', 'ret 2', 'add', 'lt']);
         expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
     });
+
+    it('can calculate the result of a simple subtraction expression', function () {
+        executeInstructions(['ret 3', 'ret 2', 'sub']);
+        expect(memory.retVal[memory.retVal.length - 1]).toEqual(1);
+    });
+
+    it('can calculate the result of a simple multiplication expression', function () {
+        executeInstructions(['ret 3', 'ret 2', 'mul']);
+        expect(memory.retVal[memory.retVal.length - 1]).toEqual(6);
+    });
+
+    it('can check if one number is less or equal to another', function () {
+        executeInstructions(['ret 5', 'ret 13', 'lte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 7', 'lte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 5', 'lte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
+    });
+
+    it('can check if one number is greater than another', function () {
+        executeInstructions(['ret 15', 'ret 3', 'gt']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 7', 'gt']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
+
+        executeInstructions(['ret 7', 'ret 77', 'gt']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
+    });
+
+    it('can check if one number is greater than, or equal to, another number', function () {
+        executeInstructions(['ret 15', 'ret 3', 'gte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 7', 'gte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 77', 'gte']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
+    });
+
+    it('can check if one number is equal to another', function () {
+        executeInstructions(['ret 0', 'ret 0', 'eq']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 7', 'eq']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+
+        executeInstructions(['ret 7', 'ret 77', 'eq']);
+        expect(memory.retVal[memory.retVal.length - 1]).toBe(false);
+    });
 });
