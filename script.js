@@ -456,23 +456,6 @@ function buildAst() {
     return ast;
 }
 
-function Program(ast) {
-    this.instructionArray = ast.toArray();
-    this.instructionPointer = -1;
-}
-
-Program.prototype.nextInstruction = function () {
-    return this.instructionArray[++this.instructionPointer];
-};
-
-Program.prototype.getInstructionPointer = function () {
-    return this.instructionPointer;
-};
-
-Program.prototype.setInstructionPointer = function (instructionPointer) {
-    this.instructionPointer = instructionPointer - 1;
-};
-
 function update(deltaTime) {
     function levelCompleted() {
         for (var i = 0; i < getCurrentLevel().leds.length; i++) {
