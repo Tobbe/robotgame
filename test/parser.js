@@ -284,4 +284,30 @@ describe('Parser', function () {
         var expressionArray = expression.toArray();
         expect(expressionArray).toEqual(['ret 27', 'ret 6', 'ret 9', 'ret 3', 'div', 'sub', 'div']);
     });
+
+    it('can parse conditional statements with expressions', function () {
+        var program =
+            "if (3 > 1) {\n" +
+            "    robot.moveRight();\n" +
+            "}";
+        var tokenizer = new Tokenizer(program);
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var conditionalStatement = parser.parseConditionalStatement();
+        var conditionalArray = conditionalStatement.toArray();
+        expect(conditionalArray).toEqual(['ret 3', 'ret 1', 'gt', 'cond 2', 'jmpr 2', 'right']);
+    });
+
+    it('can parse conditional statements with expressions with methods', function () {
+        var program =
+            "if (3 * 2 > robot.getCount()) {\n" +
+            "    robot.moveRight();\n" +
+            "}";
+        var tokenizer = new Tokenizer(program);
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var conditionalStatement = parser.parseConditionalStatement();
+        var conditionalArray = conditionalStatement.toArray();
+        expect(conditionalArray).toEqual(['ret 3', 'ret 2', 'mul', 'getCount', 'gt', 'cond 2', 'jmpr 2', 'right']);
+    });
 });

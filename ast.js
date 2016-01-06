@@ -50,13 +50,13 @@ MethodInvocation.create = function (name, args) {
     return methodInvocation;
 };
 
-function ConditionalStatement(methodInvocation, ifMethodBlock) {
-    this.methodInvocation = methodInvocation;
+function ConditionalStatement(expression, ifMethodBlock) {
+    this.expression = expression;
     this.ifMethodBlock = ifMethodBlock;
 }
 
 ConditionalStatement.prototype.toArray = function () {
-    var array = this.methodInvocation.toArray();
+    var array = this.expression.toArray();
     array.push('cond 2');
     array.push('jmpr ' + (this.ifMethodBlock.toArray().length + 1));
     array = array.concat(this.ifMethodBlock.toArray());

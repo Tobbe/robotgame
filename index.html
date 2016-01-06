@@ -41,7 +41,7 @@
             robot.hasRedKey();<br>
             robot.hasGreenKey();<br>
             robot.hasBlueKey();<br>
-            if (robot.has&lt;Color&gt;Key()) {<br>
+            if (&lt;expression&gt;) {<br>
             &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
             }<br>
             robot.openDoor();<br>
@@ -84,11 +84,11 @@
         </p>
         <p>
             The <code>has&lt;Color&gt;Key</code> methods described above will
-            most likely be used together with the <code>if</code> statement.
-            The <code>if</code> statement takes a method call that returns
-            <code>true</code> or <code>false</code> as a parameter, and if
-            the call returns true the instructions inside the <code>if</code>-
-            statement are executed.
+            most likely be used together with the <code>if</code>-statement.
+            The <code>if</code> statement takes an expression that evaluates
+            to <code>true</code> or <code>false</code> as a parameter, and if
+            it evaluates to <code>true</code> the instructions inside the
+            <code>if</code>-statement are executed.
         </p>
         <p>
             When the robot stands on a door it can open it using the <code>

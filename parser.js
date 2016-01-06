@@ -42,10 +42,10 @@ Parser.prototype.parseConditionalStatement = function () {
             return null;
         }
 
-        this.tokenizer.getNextToken(); // Prep tokenizer for parsing method invocation
-        var methodInvocation = this.parseMethodInvocation();
+        this.tokenizer.getNextToken(); // Prep tokenizer for parsing expression
+        var expression = this.parseExpression();
 
-        token = this.tokenizer.getNextToken(); // Eat ')'
+        token = this.tokenizer.getCurrentToken();
         if (token !== ')') {
             this.addError('Missing ")"');
             return null;
@@ -62,7 +62,7 @@ Parser.prototype.parseConditionalStatement = function () {
             this.addError('Missing "if" method block');
         }
 
-        return new ConditionalStatement(methodInvocation, ifMethodBlock);
+        return new ConditionalStatement(expression, ifMethodBlock);
     }
 };
 
@@ -149,13 +149,34 @@ Parser.prototype.parseExpression = function () {
             getOperatorPrecedence(operator2);
     }
 
+    function finalExpression(operators, operands) {
+        while (operators.length) {
+            rhs = operands.pop();
+            lhs = operands.pop();
+            operands.push(new ParseExpression(operators.pop(), lhs, rhs));
+        }
+
+        return operands[0];
+    }
+
     var token = this.tokenizer.getCurrentToken();
     var operands = [];
     var operators = [];
     var lhs;
     var rhs;
+    var openParentheses = 0;
 
     while (true) {
+        if (token === '(') {
+            openParentheses++;
+        } else if (token === ')') {
+            openParentheses--;
+
+            if (openParentheses < 0) {
+                return finalExpression(operators, operands);
+            }
+        }
+
         if (token === 'robot') {
             operands.push(this.parseMethodInvocation());
         } else if (!isNaN(+token)) {
@@ -174,13 +195,7 @@ Parser.prototype.parseExpression = function () {
                 operators.push(token);
             }
         } else if (token === undefined) {
-            while (operators.length) {
-                rhs = operands.pop();
-                lhs = operands.pop();
-                operands.push(new ParseExpression(operators.pop(), lhs, rhs));
-            }
-
-            return operands[0];
+            return finalExpression(operators, operands);
         }
 
         token = this.tokenizer.getNextToken();
