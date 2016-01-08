@@ -77,8 +77,10 @@ MethodBlock.prototype.toArray = function () {
     return array;
 };
 
-function LoopStatement(methodBlock) {
+function LoopStatement(expression, methodBlock) {
+    this.expression = expression;
     this.methodBlock = methodBlock;
+
     LoopStatement.prototype.num = (this.num || 0) + 1;
 }
 
@@ -88,6 +90,11 @@ LoopStatement.prototype.getId = function () {
 
 LoopStatement.prototype.toArray = function () {
     var array = ['lbl ' + this.getId()];
+    if (this.expression) {
+        array = array.concat(this.expression.toArray());
+        array.push('cond 2');
+        array.push('jmpr ' + (this.methodBlock.toArray().length + 2));
+    }
     array = array.concat(this.methodBlock.toArray());
     array.push('jmp ' + this.getId());
 

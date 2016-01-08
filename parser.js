@@ -69,9 +69,29 @@ Parser.prototype.parseConditionalStatement = function () {
 Parser.prototype.parseLoopStatement = function () {
     var token = this.tokenizer.getCurrentToken();
     var methodBlock;
+    var expression;
 
     if (token === 'loop') {
-        if (this.tokenizer.getNextToken() !== '{') {
+        token = this.tokenizer.getNextToken();
+        if (token !== '{' && token !== '(') {
+            this.addError('Missing "{" or "("');
+            return null;
+        }
+
+        if (token === '(') {
+            this.tokenizer.getNextToken(); // Prep tokenizer for parsing expression
+            expression = this.parseExpression();
+
+            token = this.tokenizer.getCurrentToken();
+            if (token !== ')') {
+                this.addError('Missing ")"');
+                return null;
+            }
+
+            token = this.tokenizer.getNextToken(); // Eat '{'
+        }
+
+        if (token !== '{') {
             this.addError('Missing "{"');
             return null;
         }
@@ -79,7 +99,7 @@ Parser.prototype.parseLoopStatement = function () {
         methodBlock = this.parseMethodBlock();
     }
 
-    return new LoopStatement(methodBlock);
+    return new LoopStatement(expression, methodBlock);
 };
 
 Parser.prototype.parseMethodBlock = function () {

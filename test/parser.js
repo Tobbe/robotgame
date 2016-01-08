@@ -82,6 +82,32 @@ describe('Parser', function () {
             'jmp loop_statement_1']);
     });
 
+    it('can parse loop statements with simple expression', function () {
+        var program =
+            "loop (1 == 1) {\n" +
+            "    robot.moveRight(2);\n" +
+            "    robot.moveUp(1);\n" +
+            "    robot.pushButton();\n" +
+            "}";
+        var tokenizer = new Tokenizer(program);
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var loopStatement = parser.parseLoopStatement();
+        var loopArray = loopStatement.toArray();
+        expect(loopArray).toEqual([
+            'lbl loop_statement_2',
+            'ret 1',
+            'ret 1',
+            'eq',
+            'cond 2',
+            'jmpr 6',
+            'right',
+            'right',
+            'up',
+            'pushButton',
+            'jmp loop_statement_2']);
+    });
+
     it('can parse expressions with just a method invocation', function () {
         var tokenizer = new Tokenizer("robot.moveRight()");
         tokenizer.getNextToken();
