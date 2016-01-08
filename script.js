@@ -31,7 +31,7 @@
 // [x] Connect with hardware (Espruino Pico)
 // [ ] Documentation depends on level (implement using css classes and js)
 // [x] `count`/`getCount` support
-// [ ] 'loop (cond)' support
+// [x] 'loop (cond)' support
 //       [ ] Level that requires use of `loop (cond)`
 // [ ] Document `count` and `loop (cond)`
 // [x] Support for MethodBlock in conditionals
