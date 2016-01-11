@@ -155,26 +155,11 @@ levels[4].buttons = [{
         }
     }];
 
-/**
- * First position
- * 1 = Open top
- * 2 = Open right
- * 4 = Open down
- * 8 = Open left
- *
- * Second position
- * A = Start position
- * B = Button
- * C = Chest
- * D = Red Door
- * E = Green Door
- * F = Blue Door
- */
 levels[5].name = "6: Conditional loop";
 levels[5].field = [
-    ['4A', '6-', '8-', '0-', '0-', '0-'],
-    ['3-', 'D-', '0-', '0-', '0-', '0-'],
-    ['0-', '3-', 'C-', '0-', '6-', '8B'],
+    ['4A', '0-', '0-', '0-', '0-', '0-'],
+    ['3-', 'C-', '6-', '8-', '0-', '0-'],
+    ['0-', '3-', 'D-', '0-', '6-', '8B'],
     ['0-', '0-', '3-', 'C-', '5-', '0-'],
     ['0-', '0-', '0-', '3-', '9-', '0-'],
     ['0-', '0-', '0-', '0-', '0-', '0-']];
