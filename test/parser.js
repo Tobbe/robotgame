@@ -336,4 +336,18 @@ describe('Parser', function () {
         var conditionalArray = conditionalStatement.toArray();
         expect(conditionalArray).toEqual(['ret 3', 'ret 2', 'mul', 'getCount', 'gt', 'cond 2', 'jmpr 2', 'right']);
     });
+
+    it('can parse function definitions', function () {
+        var program =
+            "function dummyFunction {\n" +
+            "    robot.moveRight();\n" +
+            "    robot.moveUp();\n" +
+            "}";
+        var tokenizer = new Tokenizer(program);
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var functionDefinition = parser.parseFunctionDefinition();
+        var functionDefinitionArray = functionDefinition.toArray();
+        expect(functionDefinitionArray).toEqual(['fd dummyFunction', 'right', 'up', 'fde']);
+    });
 });

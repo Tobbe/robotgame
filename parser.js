@@ -222,6 +222,29 @@ Parser.prototype.parseExpression = function () {
     }
 };
 
+Parser.prototype.parseFunctionDefinition = function () {
+    var token = this.tokenizer.getCurrentToken();
+
+    if (token !== 'function') {
+        return;
+    }
+
+    var functionName = this.tokenizer.getNextToken();
+    token = this.tokenizer.getNextToken(); // Eat '{'
+    if (token !== '{') {
+        this.addError('Missing "{"');
+        return null;
+    }
+
+    var functionMethodBlock = this.parseMethodBlock();
+
+    if (!functionMethodBlock) {
+        this.addError('Missing function method block');
+    }
+
+    return new FunctionDefinition(functionName, functionMethodBlock);
+};
+
 Parser.prototype.addError = function (errorMessage) {
     this.errors.push(errorMessage);
 };

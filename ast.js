@@ -133,3 +133,13 @@ ParseExpression.prototype.toArray = function () {
     return this.lhs.toArray().concat(this.rhs.toArray()).concat([operatorString]);
 };
 
+function FunctionDefinition(name, methodBlock) {
+    this.name = name;
+    this.methodBlock = methodBlock;
+}
+
+FunctionDefinition.prototype.toArray = function () {
+    return ['fd ' + this.name]
+        .concat(this.methodBlock.toArray())
+        .concat(['fde']);
+};
