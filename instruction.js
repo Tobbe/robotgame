@@ -27,7 +27,7 @@ function robotIsMoving(robot) {
     return robot.dx !== 0 || robot.dy !== 0;
 }
 
-function move() {
+function move(robot) {
     robot.x += robot.dx * robot.speed;
     robot.y += robot.dy * robot.speed;
 
@@ -45,6 +45,12 @@ var rhs;
 function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayingField, setStatusMessage) {
     var instruction = (robot.currentInstruction || '').split(' ');
     var tileCoords;
+
+    if (program.isCreatingFunction() && instruction[0] !== 'fde') {
+        program.addToFunction(robot.currentInstruction);
+        robot.currentInstruction = program.nextInstruction();
+        return;
+    }
 
     switch (instruction[0]) {
         case 'right':
@@ -69,7 +75,8 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
                     case 'up':    robot.dy = -1; break;
                 }
             }
-            move();
+
+            move(robot);
             break;
         case 'pushButton':
             if (robot.queue().length === 0 && !robot.instructionCompleted) {
@@ -226,6 +233,14 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             rhs = +memory.retVal.pop();
             lhs = +memory.retVal.pop();
             memory.retVal.push(lhs === rhs);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'fd':
+            program.createFunction(instruction[1]);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'fde':
+            program.endCreateFunction();
             robot.currentInstruction = program.nextInstruction();
             return;
     }

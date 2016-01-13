@@ -1,8 +1,22 @@
 eval(require('fs').readFileSync('program.js', 'utf8'));
 eval(require('fs').readFileSync('instruction.js', 'utf8'));
+function getCurrentLevel() {
+    return {
+        field: [[0]]
+    };
+}
 
 describe('Instruction', function () {
-    var robot = {};
+    var robot = {
+        dx: 0,
+        dy: 0,
+        currentTileCoords: function () {
+            return {
+                x: 0,
+                y: 0
+            };
+        }
+    };
     var memory;
     var robotPushAnimation = function () {};
     var drawPlayingField = function () {};
@@ -23,6 +37,8 @@ describe('Instruction', function () {
         for (var i = 0; i < instructions.length; ++i) {
             handleInstruction(robot, program, memory, robotPushAnimation, drawPlayingField, setStatusMessage);
         }
+
+        return program;
     }
 
     it('can calculate the result of a simple addition expression', function () {
@@ -125,5 +141,40 @@ describe('Instruction', function () {
             'sub',
             'lte']);
         expect(memory.retVal[memory.retVal.length - 1]).toBe(true);
+    });
+
+    it('can create a new function in a program', function () {
+        var program = executeInstructions([
+            'fd testFunction',
+            'right',
+            'up',
+            'fde']);
+        expect(program.functions.testFunction)
+            .toEqual(['right', 'up'])
+    });
+
+    it('can create two functions in a more complex program', function () {
+        var program = executeInstructions([
+            'count',
+            'count',
+            'fd testFunction1',
+            'count',
+            'right',
+            'down',
+            'fde',
+            'right',
+            'down',
+            'fd testFunction2',
+            'count',
+            'left',
+            'up',
+            'up',
+            'fde',
+            'getCount']);
+        expect(Object.keys(program.functions).length).toBe(2);
+        expect(program.functions.testFunction1)
+            .toEqual(['count', 'right', 'down']);
+        expect(program.functions.testFunction2)
+            .toEqual(['count', 'left', 'up', 'up']);
     });
 });
