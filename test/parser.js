@@ -350,4 +350,68 @@ describe('Parser', function () {
         var functionDefinitionArray = functionDefinition.toArray();
         expect(functionDefinitionArray).toEqual(['fd dummyFunction', 'right', 'up', 'fde']);
     });
+
+    it('can parse function definitions with loops', function () {
+        var program =
+            "function dummyFunction {\n" +
+            "    robot.moveDown(2);\n" +
+            "    loop (robot.getCount() < 3) {\n" +
+            "        robot.moveUp();\n" +
+            "        robot.moveRight();\n" +
+            "        robot.count();\n" +
+            "    }\n" +
+            "}";
+        var tokenizer = new Tokenizer(program);
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var functionDefinition = parser.parseFunctionDefinition();
+        var functionDefinitionArray = functionDefinition.toArray();
+        expect(functionDefinitionArray).toEqual([
+            'fd dummyFunction',
+            'down',
+            'down',
+            'lbl loop_statement_3',
+            'getCount',
+            'ret 3',
+            'lt',
+            'cond 2',
+            'jmpr 5',
+            'up',
+            'right',
+            'count',
+            'jmp loop_statement_3',
+            'fde'
+        ]);
+    });
+
+    it('can parse function definitions with if-statements', function () {
+        var program =
+            "function dummyFunction {\n" +
+            "    robot.moveDown(2);\n" +
+            "    if (robot.getCount() < 3) {\n" +
+            "        robot.moveUp();\n" +
+            "        robot.moveRight();\n" +
+            "        robot.count();\n" +
+            "    }\n" +
+            "}";
+        var tokenizer = new Tokenizer(program);
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var functionDefinition = parser.parseFunctionDefinition();
+        var functionDefinitionArray = functionDefinition.toArray();
+        expect(functionDefinitionArray).toEqual([
+            'fd dummyFunction',
+            'down',
+            'down',
+            'getCount',
+            'ret 3',
+            'lt',
+            'cond 2',
+            'jmpr 4',
+            'up',
+            'right',
+            'count',
+            'fde'
+        ]);
+    });
 });

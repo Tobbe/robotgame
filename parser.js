@@ -112,7 +112,17 @@ Parser.prototype.parseMethodBlock = function () {
             break;
         }
 
-        methodInvocations.push(this.parseMethodInvocation());
+        var instruction = this.parseMethodInvocation();
+
+        if (!instruction) {
+            instruction = this.parseConditionalStatement();
+        }
+
+        if (!instruction) {
+            instruction = this.parseLoopStatement();
+        }
+
+        methodInvocations.push(instruction);
     }
 
     return new MethodBlock(methodInvocations);
