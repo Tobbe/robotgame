@@ -17,6 +17,21 @@ Program.prototype.setInstructionPointer = function (instructionPointer) {
     this.instructionPointer = instructionPointer;
 };
 
+Program.prototype.setInstructionPointerToFunction = function (functionName) {
+    var startInstructionPointer =
+        this.functions[functionName].startInstructionPointer;
+
+    if (!startInstructionPointer) {
+        startInstructionPointer = this.instructionArray.length;
+        this.instructionArray =
+            this.instructionArray.concat(this.functions[functionName]);
+        this.functions[functionName].startInstructionPointer =
+            startInstructionPointer;
+    }
+
+    this.instructionPointer = startInstructionPointer - 1;
+};
+
 Program.prototype.createFunction = function (name) {
     this.functions[name] = [];
     this.functionCreationStack.push(name);
@@ -34,4 +49,8 @@ Program.prototype.addToFunction = function (instruction) {
 
 Program.prototype.isCreatingFunction = function () {
     return this.functionCreationStack.length;
+};
+
+Program.prototype.getFunction = function (name) {
+    return this.functions[name];
 };

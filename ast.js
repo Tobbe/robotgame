@@ -20,6 +20,10 @@ TreeNode.prototype.toArray = function() {
         array = this.isRoot ? childArray : array.concat(childArray);
     }
 
+    if (this.isRoot) {
+        array.push('exit');
+    }
+
     return array;
 };
 
@@ -141,5 +145,13 @@ function FunctionDefinition(name, methodBlock) {
 FunctionDefinition.prototype.toArray = function () {
     return ['fd ' + this.name]
         .concat(this.methodBlock.toArray())
-        .concat(['fde']);
+        .concat(['fret', 'fde']);
+};
+
+function FunctionCall(name) {
+    this.name = name;
+}
+
+FunctionCall.prototype.toArray = function () {
+    return ['sip', 'jmpf ' + this.name];
 };

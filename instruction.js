@@ -46,7 +46,7 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
     var instruction = (robot.currentInstruction || '').split(' ');
     var tileCoords;
 
-    if (program.isCreatingFunction() && instruction[0] !== 'fde') {
+    if (program && program.isCreatingFunction() && instruction[0] !== 'fde') {
         program.addToFunction(robot.currentInstruction);
         robot.currentInstruction = program.nextInstruction();
         return;
@@ -241,6 +241,18 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             return;
         case 'fde':
             program.endCreateFunction();
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'sip':
+            memory.ips.push(program.getInstructionPointer());
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'jmpf':
+            program.setInstructionPointerToFunction(instruction[1]);
+            robot.currentInstruction = program.nextInstruction();
+            return;
+        case 'fret':
+            program.setInstructionPointer(memory.ips.pop() + 1);
             robot.currentInstruction = program.nextInstruction();
             return;
     }

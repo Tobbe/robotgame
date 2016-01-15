@@ -71,33 +71,35 @@ Parser.prototype.parseLoopStatement = function () {
     var methodBlock;
     var expression;
 
-    if (token === 'loop') {
-        token = this.tokenizer.getNextToken();
-        if (token !== '{' && token !== '(') {
-            this.addError('Missing "{" or "("');
-            return null;
-        }
-
-        if (token === '(') {
-            this.tokenizer.getNextToken(); // Prep tokenizer for parsing expression
-            expression = this.parseExpression();
-
-            token = this.tokenizer.getCurrentToken();
-            if (token !== ')') {
-                this.addError('Missing ")"');
-                return null;
-            }
-
-            token = this.tokenizer.getNextToken(); // Eat '{'
-        }
-
-        if (token !== '{') {
-            this.addError('Missing "{"');
-            return null;
-        }
-
-        methodBlock = this.parseMethodBlock();
+    if (token !== 'loop') {
+        return;
     }
+
+    token = this.tokenizer.getNextToken();
+    if (token !== '{' && token !== '(') {
+        this.addError('Missing "{" or "("');
+        return null;
+    }
+
+    if (token === '(') {
+        this.tokenizer.getNextToken(); // Prep tokenizer for parsing expression
+        expression = this.parseExpression();
+
+        token = this.tokenizer.getCurrentToken();
+        if (token !== ')') {
+            this.addError('Missing ")"');
+            return null;
+        }
+
+        token = this.tokenizer.getNextToken(); // Eat '{'
+    }
+
+    if (token !== '{') {
+        this.addError('Missing "{"');
+        return null;
+    }
+
+    methodBlock = this.parseMethodBlock();
 
     return new LoopStatement(expression, methodBlock);
 };
@@ -253,6 +255,24 @@ Parser.prototype.parseFunctionDefinition = function () {
     }
 
     return new FunctionDefinition(functionName, functionMethodBlock);
+};
+
+Parser.prototype.parseFunctionCall = function () {
+    var functionName = this.tokenizer.getCurrentToken();
+
+    token = this.tokenizer.getNextToken(); // Eat '('
+    if (token !== '(') {
+        this.addError('parseFunctionCall: Missing "("');
+        return null;
+    }
+
+    token = this.tokenizer.getNextToken(); // Eat ')'
+    if (token !== ')') {
+        this.addError('parseFunctionCall: Missing ")"');
+        return null;
+    }
+
+    return new FunctionCall(functionName);
 };
 
 Parser.prototype.addError = function (errorMessage) {

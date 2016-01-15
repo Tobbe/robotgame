@@ -8,7 +8,8 @@ var program;
 var memory = {
     lbl: {},
     count: 0,
-    retVal: []
+    retVal: [],
+    ips: []
 };
 
 var gameState = 'MENU';
@@ -393,7 +394,15 @@ function buildAst() {
         }
 
         if (!instruction) {
+            instruction = parser.parseFunctionDefinition();
+        }
+
+        if (!instruction) {
             instruction = parser.parseLoopStatement();
+        }
+
+        if (!instruction) {
+            instruction = parser.parseFunctionCall();
         }
 
         errorMessages = errorMessages.concat(parser.getErrors());

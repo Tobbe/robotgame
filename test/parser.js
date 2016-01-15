@@ -348,7 +348,7 @@ describe('Parser', function () {
         var parser = new Parser(tokenizer);
         var functionDefinition = parser.parseFunctionDefinition();
         var functionDefinitionArray = functionDefinition.toArray();
-        expect(functionDefinitionArray).toEqual(['fd dummyFunction', 'right', 'up', 'fde']);
+        expect(functionDefinitionArray).toEqual(['fd dummyFunction', 'right', 'up', 'fret', 'fde']);
     });
 
     it('can parse function definitions with loops', function () {
@@ -380,6 +380,7 @@ describe('Parser', function () {
             'right',
             'count',
             'jmp loop_statement_3',
+            'fret',
             'fde'
         ]);
     });
@@ -411,7 +412,17 @@ describe('Parser', function () {
             'up',
             'right',
             'count',
+            'fret',
             'fde'
         ]);
+    });
+
+    it('can parse function calls', function () {
+        var tokenizer = new Tokenizer("functionCall();");
+        tokenizer.getNextToken();
+        var parser = new Parser(tokenizer);
+        var functionCall = parser.parseFunctionCall();
+        var functionCallArray = functionCall.toArray();
+        expect(functionCallArray).toEqual(['sip', 'jmpf functionCall']);
     });
 });
