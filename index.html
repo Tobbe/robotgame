@@ -50,6 +50,11 @@
             &nbsp;&nbsp;&nbsp;&nbsp;robot.&lt;SomeMethod&gt;();<br>
             &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             }<br>
+            loop (&lt;expression&gt;) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+            }<br>
+            robot.count();<br>
+            robot.getCount();<br>
         </code>
         <p>
             All move-functions take one parameter, called <code>steps</code>.
@@ -102,6 +107,42 @@
             the loop. For this simple version of a loop, once you enter it,
             you will never exit.
         </p>
+        <p>
+            The robot knows how to count. Just type <code>robot.count()</code>.
+            Every time that method is called the robot will add one to its
+            internal count.
+        </p>
+        <p>
+            To know how far the robot has counted you use
+            <code>robot.getCount()</code>. Use, for example, like this in an
+            <code>if</code>-statement.
+        </p>
+        <code class="info-area">
+            if (robot.getCount() &lt;= 3) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.moveUp();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.count();<br>
+            }
+        </code>
+        <p>
+            The code snippet above will check if the robot has counted to
+            three or less. If it has, it will move one step up and increase
+            its internal counter by one.
+        </p>
+        <p>
+            In addition to the simple version of a loop shown above, the loop
+            can also be used with an expression. It works just like the
+            expression used with <code>if</code>.
+        </p>
+        <p>
+            Run the same sequence of instructions four times like this:
+        </p>
+        <code class="info-area">
+            loop (robot.getCount() &lt; 4) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.moveUp();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.moveRight();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;robot.count();<br>
+            }<br>
+        </code>
     </div>
 
     <script src="jquery-2.1.4.js"></script>
