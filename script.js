@@ -132,11 +132,13 @@ function drawPlayingField() {
 
     function drawTile(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
-            var imgStr = '<img src="' + item + '.png" class="field_item"></img>';
-            var itemElement = $(imgStr);
-            itemElement.css('top', y + 10);
-            itemElement.css('left', x + 10);
-            $('.game_area').append(itemElement);
+            var img = new Image();
+
+            img.onload = function () {
+                context.drawImage(img, x + 10, y + 10);
+            };
+
+            img.src = item + ".png";
         }
 
         var door;
