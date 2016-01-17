@@ -116,6 +116,8 @@ function drawPlayingField() {
 
     function drawKey(context, color, x, y) {
         if (!robot.key) {
+            context.fillStyle = '#fff';
+            context.fillRect(x, y, 24, 24);
             return;
         }
 
@@ -346,6 +348,7 @@ function changeGameState() {
         $('input.run').removeClass('hidden');
         $('input.retry').addClass('hidden');
         $('.field_item').remove();
+        delete robot.key;
         drawPlayingField();
         setPlayerPosition(getStartPosition());
         $('.game_menu').hide();
