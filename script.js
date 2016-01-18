@@ -238,26 +238,29 @@ function drawPlayingField() {
 }
 
 function createPlayer(startCoordinates) {
-    robot = $('<img src="robot.png" class="player">');
-    robot.css('top', 6);
-    robot.css('left', 6);
-    robot.dx = 0;
-    robot.dy = 0;
-    robot.x = 0;
-    robot.y = 0;
-    robot.speed = 2;
-    robot.currentTileCoords = function () {
-        return {
-            x: robot.x / 100 | 0,
-            y: robot.y / 100 | 0
-        };
-    };
+    robot = {
+        img: new Image();
+        img.src: 'robot.png';
+        renderTop: 6;
+        renderLeft: 6;
+        dx: 0;
+        dy: 0;
+        x: 0;
+        y: 0;
+        speed: 2;
+        currentTileCoords: function () {
+            return {
+                x: robot.x / 100 | 0,
+                y: robot.y / 100 | 0
+            };
+        }
+    }
     $('.game_area').append(robot);
 }
 
 function setPlayerPosition(coords) {
-    robot.css('top', 6 + coords.y * 68);
-    robot.css('left', 6 + coords.x * 68);
+    robot.renderTop = 6 + coords.y * 68;
+    robot.renderLeft = 6 + coords.x * 68;
     robot.x = coords.x * 100;
     robot.y = coords.y * 100;
 }
@@ -440,7 +443,7 @@ function update(deltaTime) {
     }
 
     function robotPushAnimation(triggerAction) {
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
+        /*robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
         robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
@@ -455,7 +458,9 @@ function update(deltaTime) {
         robot.animate({ opacity: 1 }, 50, function () {
             robot[0].src = "robot.png";
             robot.instructionCompleted = true;
-        });
+        });*/
+       triggerAction();
+       robot.instructionCompleted = true;
     }
 
     function robotPushAnimationTriggerAction() {
@@ -512,11 +517,16 @@ function updateLevelCompleted(deltaTime) {
 }
 
 function render() {
+    var canvas = $('.field')[0];
+    var context = canvas.getContext('2d');
+    context.fillStyle = '#fff';
+    context.fillRect(robot.renderLeft, robot.renderTop, 57, 57);
     // The robot takes 100 steps when moving from one map tile to the next
     // Each map tile is 68 x 68 pixels
     // So each robot step is 68/100 pixels
-    robot.css('left', 6 + Math.round(robot.x * 68 / 100));
-    robot.css('top', 6 + Math.round(robot.y * 68 / 100));
+    robot.renderLeft = 6 + Math.round(robot.x * 68 / 100);
+    robot.renderTop = 6 + Math.round(robot.y * 68 / 100);
+    context.drawImage(robot.img, robot.renderLeft, robot.renderTop);
 }
 
 function frame() {

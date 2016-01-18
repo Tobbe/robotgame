@@ -79,7 +79,17 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
             move(robot);
             break;
         case 'pushButton':
-            if (robot.queue().length === 0 && !robot.instructionCompleted) {
+            /*if (robot.queue().length === 0 && !robot.instructionCompleted) {
+                tileCoords = robot.currentTileCoords();
+                item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
+                if (item && item.key === 'buttons') {
+                    robotPushAnimation();
+                } else {
+                    setStatusMessage("No button found here");
+                    robot.instructionCompleted = true;
+                }
+            }*/
+            if (!robot.instructionCompleted) {
                 tileCoords = robot.currentTileCoords();
                 item = getCurrentLevel().items[tileCoords.y][tileCoords.x];
                 if (item && item.key === 'buttons') {
