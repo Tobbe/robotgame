@@ -250,7 +250,6 @@ function createPlayer(startCoordinates) {
     };
     setRobotInitialValues({x: 0, y: 0});
     robot.img.src = 'robot.png';
-    $('.game_area').append(robot);
 }
 
 function prepareToPlay() {
@@ -269,8 +268,6 @@ function setRobotInitialValues(coords) {
     robot.dy = 0;
     robot.currentInstruction = 'wait';
     robot.instructionCompleted = false;
-    robot.stop(true);
-    robot[0].src = 'robot.png';
 }
 
 function resetItems() {
@@ -295,7 +292,6 @@ function setPageElementsToInitialState() {
     $('input.clear').prop("disabled", false);
     $('input.run').removeClass('hidden');
     $('input.retry').addClass('hidden');
-    $('.field_item').remove();
     $('.level_completed_splash').hide();
 }
 

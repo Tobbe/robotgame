@@ -71,22 +71,11 @@ textarea {
     padding: 10px;
 }
 
-.player {
-    position: absolute;
-    width: 57px;
-    height: 57px;
-    z-index: 100;
-}
-
 .instructions {
     position: absolute;
     left: 810px;
     margin-left: 10px;
     margin-right: 10px;
-}
-
-.field_item {
-    position: absolute;
 }
 
 .hidden {
