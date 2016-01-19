@@ -239,22 +239,22 @@ function drawPlayingField() {
 
 function createPlayer(startCoordinates) {
     robot = {
-        img: new Image();
-        img.src: 'robot.png';
-        renderTop: 6;
-        renderLeft: 6;
-        dx: 0;
-        dy: 0;
-        x: 0;
-        y: 0;
-        speed: 2;
+        img: new Image(),
+        renderTop: 6,
+        renderLeft: 6,
+        dx: 0,
+        dy: 0,
+        x: 0,
+        y: 0,
+        speed: 2,
         currentTileCoords: function () {
             return {
                 x: robot.x / 100 | 0,
                 y: robot.y / 100 | 0
             };
         }
-    }
+    };
+    robot.img.src = 'robot.png';
     $('.game_area').append(robot);
 }
 
