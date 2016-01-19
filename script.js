@@ -265,6 +265,32 @@ function setPlayerPosition(coords) {
     robot.y = coords.y * 100;
 }
 
+function resetItems() {
+    (getCurrentLevel().chests || []).forEach(function (chest) {
+        chest.open = false;
+    });
+
+    (getCurrentLevel().doors || []).forEach(function (door) {
+        door.open = false;
+    });
+
+    getCurrentLevel().leds.forEach(function (led) {
+        led.on = false;
+    });
+
+    delete robot.key;
+}
+
+function setPageElementsToInitialState() {
+    $('input.clear').prop("disabled", false);
+    $('textarea').prop("disabled", false);
+    $('input.clear').prop("disabled", false);
+    $('input.run').removeClass('hidden');
+    $('input.retry').addClass('hidden');
+    $('.field_item').remove();
+    $('.level_completed_splash').hide();
+}
+
 function attachClickHandlers() {
     $('input.run').on('click', function() {
         program = new Program(buildAst().toArray());
@@ -276,36 +302,17 @@ function attachClickHandlers() {
     });
 
     $('input.retry').on('click', function () {
-        $('input.run, input.retry').toggleClass('hidden');
-        $('input.clear').prop("disabled", false);
-        $('textarea').prop("disabled", false);
-
-        if (getCurrentLevel().chests) {
-            getCurrentLevel().chests.forEach(function (chest) {
-                chest.open = false;
-            });
-        }
-
-        if (getCurrentLevel().doors) {
-            getCurrentLevel().doors.forEach(function (door) {
-                door.open = false;
-            });
-        }
-
-        getCurrentLevel().leds.forEach(function (led) {
-            led.on = false;
-        });
+        setPageElementsToInitialState();
+        resetItems();
 
         robot.dx = 0;
         robot.dy = 0;
         robot.currentInstruction = 'wait';
         robot.instructionCompleted = false;
         robot.stop(true);
-        delete robot.key;
         robot[0].src = 'robot.png';
         setPlayerPosition(getStartPosition());
         program = new Program(buildAst().toArray());
-        $('.field_item').remove();
         drawPlayingField();
     });
 
@@ -318,24 +325,6 @@ function attachClickHandlers() {
             var num = -48 + event.which;
             var selectedLevelIndex = num - 1;
 
-            if (getLevel(selectedLevelIndex).chests) {
-                getLevel(selectedLevelIndex).chests.forEach(function (chest) {
-                    chest.open = false;
-                });
-            }
-
-            if (getLevel(selectedLevelIndex).doors) {
-                getLevel(selectedLevelIndex).doors.forEach(function (door) {
-                    door.open = false;
-                });
-            }
-
-            getLevel(selectedLevelIndex).leds.forEach(function (led) {
-                led.on = false;
-            });
-
-            delete robot.key;
-
             // currentLevel will be increased by one in changeGameState()
             setCurrentLevelIndex(selectedLevelIndex - 1);
             changeGameState();
@@ -346,18 +335,12 @@ function attachClickHandlers() {
 function changeGameState() {
     if (gameState === 'MENU') {
         moveToNextLevel();
-        $('.game_area textarea')
-            .val('')
-            .prop("disabled", false);
-        $('input.clear').prop("disabled", false);
-        $('input.run').removeClass('hidden');
-        $('input.retry').addClass('hidden');
-        $('.field_item').remove();
-        delete robot.key;
+        resetItems();
+        setPageElementsToInitialState();
+        $('.game_area textarea').val('');
+        $('.game_menu').hide();
         drawPlayingField();
         setPlayerPosition(getStartPosition());
-        $('.game_menu').hide();
-        $('.level_completed_splash').hide();
         gameState = 'GAME';
     } else if (gameState === 'GAME') {
         $('.level_completed_splash').show();
