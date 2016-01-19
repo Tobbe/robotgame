@@ -240,12 +240,6 @@ function drawPlayingField() {
 function createPlayer(startCoordinates) {
     robot = {
         img: new Image(),
-        renderTop: 6,
-        renderLeft: 6,
-        dx: 0,
-        dy: 0,
-        x: 0,
-        y: 0,
         speed: 2,
         currentTileCoords: function () {
             return {
@@ -254,15 +248,29 @@ function createPlayer(startCoordinates) {
             };
         }
     };
+    setRobotInitialValues({x: 0, y: 0});
     robot.img.src = 'robot.png';
     $('.game_area').append(robot);
 }
 
-function setPlayerPosition(coords) {
+function prepareToPlay() {
+    setRobotInitialValues(getStartPosition());
+    resetItems();
+    drawPlayingField();
+    setPageElementsToInitialState();
+}
+
+function setRobotInitialValues(coords) {
     robot.renderTop = 6 + coords.y * 68;
     robot.renderLeft = 6 + coords.x * 68;
     robot.x = coords.x * 100;
     robot.y = coords.y * 100;
+    robot.dx = 0;
+    robot.dy = 0;
+    robot.currentInstruction = 'wait';
+    robot.instructionCompleted = false;
+    robot.stop(true);
+    robot[0].src = 'robot.png';
 }
 
 function resetItems() {
@@ -302,18 +310,9 @@ function attachClickHandlers() {
     });
 
     $('input.retry').on('click', function () {
-        setPageElementsToInitialState();
-        resetItems();
+        prepareToPlay();
 
-        robot.dx = 0;
-        robot.dy = 0;
-        robot.currentInstruction = 'wait';
-        robot.instructionCompleted = false;
-        robot.stop(true);
-        robot[0].src = 'robot.png';
-        setPlayerPosition(getStartPosition());
         program = new Program(buildAst().toArray());
-        drawPlayingField();
     });
 
     $('.game_menu, .level_completed_splash').on('click', function() {
@@ -335,12 +334,9 @@ function attachClickHandlers() {
 function changeGameState() {
     if (gameState === 'MENU') {
         moveToNextLevel();
-        resetItems();
-        setPageElementsToInitialState();
+        prepareToPlay();
         $('.game_area textarea').val('');
         $('.game_menu').hide();
-        drawPlayingField();
-        setPlayerPosition(getStartPosition());
         gameState = 'GAME';
     } else if (gameState === 'GAME') {
         $('.level_completed_splash').show();
