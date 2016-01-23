@@ -2,6 +2,7 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
+var offscreenImage;
 var tokenizer;
 var program;
 
@@ -130,7 +131,7 @@ function drawPlayingField() {
         img.src = "key_" + color + ".png";
     }
 
-    function drawTile(context, tile, fieldItem, x, y) {
+    function drawTileItem(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
             var img = new Image();
 
@@ -142,6 +143,44 @@ function drawPlayingField() {
         }
 
         var door;
+
+        if (tile[1] === 'B') {
+            drawItem('button', x, y);
+        }
+
+        if (tile[1] === 'C') {
+            drawItem('chest', x, y);
+        }
+
+        if (tile[1] === 'D') {
+            door = getCurrentLevel().doors[fieldItem.index];
+            if (!door.open) {
+                drawItem('door_red', x, y);
+            } else {
+                drawItem('door_red_open', x, y);
+            }
+        }
+
+        if (tile[1] === 'E') {
+            door = getCurrentLevel().doors[fieldItem.index];
+            if (!door.open) {
+                drawItem('door_green', x, y);
+            } else {
+                drawItem('door_green_open', x, y);
+            }
+        }
+
+        if (tile[1] === 'F') {
+            door = getCurrentLevel().doors[fieldItem.index];
+            if (!door.open) {
+                drawItem('door_blue', x, y);
+            } else {
+                drawItem('door_blue_open', x, y);
+            }
+        }
+    }
+
+    function drawTileWalls(context, tile, fieldItem, x, y) {
         var tileOpenings = parseInt(tile[0], 16);
 
         if (tileOpenings === 0) {
@@ -180,60 +219,47 @@ function drawPlayingField() {
             context.lineTo(x, y + 64);
         }
 
-        if (tile[1] === 'B') {
-            drawItem('button', x, y);
-        }
-
-        if (tile[1] === 'C') {
-            drawItem('chest', x, y);
-        }
-
-        if (tile[1] === 'D') {
-            door = getCurrentLevel().doors[fieldItem.index];
-            if (!door.open) {
-                drawItem('door_red', x, y);
-            } else {
-                drawItem('door_red_open', x, y);
-            }
-        }
-
-        if (tile[1] === 'E') {
-            door = getCurrentLevel().doors[fieldItem.index];
-            if (!door.open) {
-                drawItem('door_green', x, y);
-            } else {
-                drawItem('door_green_open', x, y);
-            }
-        }
-
-        if (tile[1] === 'F') {
-            door = getCurrentLevel().doors[fieldItem.index];
-            if (!door.open) {
-                drawItem('door_blue', x, y);
-            } else {
-                drawItem('door_blue_open', x, y);
-            }
-        }
-
         context.stroke();
     }
 
+    var image;
     var canvas = $('.field')[0];
     var context = canvas.getContext('2d');
+    var statusAreaY = getCurrentLevel().field.length * 68 + 10;
+    var statusAreaX = getCurrentLevel().field[0].length * 68;
+
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.lineWidth = 2;
+
+    if (!offscreenImage) {
+        var offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = canvas.width;
+        offscreenCanvas.height = canvas.height;
+        var offscreenContext = offscreenCanvas.getContext('2d');
+        offscreenContext.clearRect(0, 0, canvas.width, canvas.height);
+        offscreenContext.lineWidth = 2;
+
+        getCurrentLevel().field.forEach(function (line, lineIndex) {
+            line.forEach(function (tile, tileIndex) {
+                var item = getCurrentLevel().items[lineIndex][tileIndex];
+                drawTileWalls(offscreenContext, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
+            });
+        });
+
+        drawStatusAreaBorder(offscreenContext, 4, statusAreaY + 2);
+        offscreenImage = offscreenContext.getImageData(0, 0, canvas.width, canvas.height);
+    }
+
+    context.putImageData(offscreenImage, 0, 0);
 
     getCurrentLevel().field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
             var item = getCurrentLevel().items[lineIndex][tileIndex];
-            drawTile(context, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
+            drawTileItem(context, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
 
-    var statusAreaY = getCurrentLevel().field.length * 68 + 10;
-    var statusAreaX = getCurrentLevel().field[0].length * 68;
     drawLEDs(getCurrentLevel().leds.length, context, statusAreaX - 12, statusAreaY + 16);
-    drawStatusAreaBorder(context, 4, statusAreaY + 2);
     drawKey(context, robot.key, 309, statusAreaY + 5);
 }
 
@@ -255,6 +281,7 @@ function createPlayer(startCoordinates) {
 function prepareToPlay() {
     setRobotInitialValues(getStartPosition());
     resetItems();
+    offscreenImage = undefined;
     drawPlayingField();
     setPageElementsToInitialState();
 }
