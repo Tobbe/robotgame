@@ -18,11 +18,11 @@ var gameState = 'MENU';
 var statusMessage = '';
 function setStatusMessage(msg) {
     statusMessage = msg;
-    drawPlayingField();
+    drawDymanicGameElements();
     clearTimeout(setStatusMessage.timoutId);
     setStatusMessage.timeoutId = setTimeout(function () {
         statusMessage = "";
-        drawPlayingField();
+        drawDymanicGameElements();
     }, 3000);
 }
 
@@ -146,7 +146,7 @@ function drawLevelCompletedSplash() {
     };
 }
 
-function drawPlayingField() {
+function drawDymanicGameElements() {
     function drawLEDs(ledCount, context, x, y) {
         for (var i = 0; i < ledCount; i++) {
             context.beginPath();
@@ -281,7 +281,7 @@ function prepareToPlay() {
     setRobotInitialValues(getStartPosition());
     resetItems();
     drawGameArea();
-    drawPlayingField();
+    drawDymanicGameElements();
     setPageElementsToInitialState();
 }
 
@@ -473,14 +473,14 @@ function update(deltaTime) {
             method: "PUT",
             data: controlledItem.on ? "on" : "off",
         });
-        drawPlayingField();
+        drawDymanicGameElements();
     }
 
     function robotPushAnimationWithTriggerAction() {
         robotPushAnimation(robotPushAnimationTriggerAction);
     }
 
-    handleInstruction(robot, program, memory, robotPushAnimationWithTriggerAction, drawPlayingField, setStatusMessage);
+    handleInstruction(robot, program, memory, robotPushAnimationWithTriggerAction, drawDymanicGameElements, setStatusMessage);
 
     if (robot.instructionCompleted) {
         robot.currentInstruction = undefined;
