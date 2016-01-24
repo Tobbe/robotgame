@@ -49,6 +49,77 @@ function getStartPosition() {
     return {x: 0, y: 0};
 }
 
+function drawGameArea() {
+    function drawStatusAreaBorder(context, x, y) {
+        context.strokeStyle = '#777';
+        context.fillStyle = 'white';
+        roundedRect(context, x, y, 300, 28, 4);
+
+        context.fillStyle = '#000';
+        context.font = "16px Calibri";
+        context.fillText(statusMessage, x + 6, y + 18);
+    }
+
+    function drawTileWalls(context, tile, fieldItem, x, y) {
+        var tileOpenings = parseInt(tile[0], 16);
+
+        if (tileOpenings === 0) {
+            context.fillStyle = '#ccc';
+        } else {
+            context.fillStyle = 'white';
+        }
+
+        context.strokeStyle = 'black';
+
+        context.beginPath();
+        context.rect(x, y, 68, 68);
+        context.fill();
+        context.stroke();
+
+        context.beginPath();
+        context.strokeStyle = 'white';
+
+        if (tileOpenings & 1) {
+            context.moveTo(x + 4, y);
+            context.lineTo(x + 64, y);
+        }
+
+        if (tileOpenings & 2) {
+            context.moveTo(x + 68, y + 4);
+            context.lineTo(x + 68, y + 64);
+        }
+
+        if (tileOpenings & 4) {
+            context.moveTo(x + 4, y + 68);
+            context.lineTo(x + 64, y + 68);
+        }
+
+        if (tileOpenings & 8) {
+            context.moveTo(x, y + 4);
+            context.lineTo(x, y + 64);
+        }
+
+        context.stroke();
+    }
+
+    var offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = canvas.width;
+    offscreenCanvas.height = canvas.height;
+    var offscreenContext = offscreenCanvas.getContext('2d');
+    offscreenContext.clearRect(0, 0, canvas.width, canvas.height);
+    offscreenContext.lineWidth = 2;
+
+    getCurrentLevel().field.forEach(function (line, lineIndex) {
+        line.forEach(function (tile, tileIndex) {
+            var item = getCurrentLevel().items[lineIndex][tileIndex];
+            drawTileWalls(offscreenContext, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
+        });
+    });
+
+    drawStatusAreaBorder(offscreenContext, 4, statusAreaY + 2);
+    offscreenImage = offscreenContext.getImageData(0, 0, canvas.width, canvas.height);
+}
+
 function drawGameMenu() {
     var context = $('.game_menu')[0].getContext('2d', {alpha: false});
     var img = new Image();
@@ -103,16 +174,6 @@ function drawPlayingField() {
         context.fill();
         context.stroke();
         context.closePath();
-    }
-
-    function drawStatusAreaBorder(context, x, y) {
-        context.strokeStyle = '#777';
-        context.fillStyle = 'white';
-        roundedRect(context, x, y, 300, 28, 4);
-
-        context.fillStyle = '#000';
-        context.font = "16px Calibri";
-        context.fillText(statusMessage, x + 6, y + 18);
     }
 
     function drawKey(context, color, x, y) {
@@ -180,49 +241,6 @@ function drawPlayingField() {
         }
     }
 
-    function drawTileWalls(context, tile, fieldItem, x, y) {
-        var tileOpenings = parseInt(tile[0], 16);
-
-        if (tileOpenings === 0) {
-            context.fillStyle = '#ccc';
-        } else {
-            context.fillStyle = 'white';
-        }
-
-        context.strokeStyle = 'black';
-
-        context.beginPath();
-        context.rect(x, y, 68, 68);
-        context.fill();
-        context.stroke();
-
-        context.beginPath();
-        context.strokeStyle = 'white';
-
-        if (tileOpenings & 1) {
-            context.moveTo(x + 4, y);
-            context.lineTo(x + 64, y);
-        }
-
-        if (tileOpenings & 2) {
-            context.moveTo(x + 68, y + 4);
-            context.lineTo(x + 68, y + 64);
-        }
-
-        if (tileOpenings & 4) {
-            context.moveTo(x + 4, y + 68);
-            context.lineTo(x + 64, y + 68);
-        }
-
-        if (tileOpenings & 8) {
-            context.moveTo(x, y + 4);
-            context.lineTo(x, y + 64);
-        }
-
-        context.stroke();
-    }
-
-    var image;
     var canvas = $('.field')[0];
     var context = canvas.getContext('2d');
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
@@ -230,25 +248,6 @@ function drawPlayingField() {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.lineWidth = 2;
-
-    if (!offscreenImage) {
-        var offscreenCanvas = document.createElement('canvas');
-        offscreenCanvas.width = canvas.width;
-        offscreenCanvas.height = canvas.height;
-        var offscreenContext = offscreenCanvas.getContext('2d');
-        offscreenContext.clearRect(0, 0, canvas.width, canvas.height);
-        offscreenContext.lineWidth = 2;
-
-        getCurrentLevel().field.forEach(function (line, lineIndex) {
-            line.forEach(function (tile, tileIndex) {
-                var item = getCurrentLevel().items[lineIndex][tileIndex];
-                drawTileWalls(offscreenContext, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
-            });
-        });
-
-        drawStatusAreaBorder(offscreenContext, 4, statusAreaY + 2);
-        offscreenImage = offscreenContext.getImageData(0, 0, canvas.width, canvas.height);
-    }
 
     context.putImageData(offscreenImage, 0, 0);
 
@@ -281,7 +280,7 @@ function createPlayer(startCoordinates) {
 function prepareToPlay() {
     setRobotInitialValues(getStartPosition());
     resetItems();
-    offscreenImage = undefined;
+    drawGameArea();
     drawPlayingField();
     setPageElementsToInitialState();
 }
