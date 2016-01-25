@@ -2,6 +2,7 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
+var canvas;
 var offscreenImage;
 var tokenizer;
 var program;
@@ -31,6 +32,7 @@ function getStatusMessage() {
 }
 
 $(function () {
+    canvas = $('.field')[0];
     attachClickHandlers();
     drawGameMenu();
     createPlayer();
@@ -50,6 +52,20 @@ function getStartPosition() {
 }
 
 function drawGameArea() {
+    function roundedRect(context, x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        context.beginPath();
+        context.moveTo(x+r - 1, y);
+        context.arcTo(x+w, y,   x+w, y+h, r);
+        context.arcTo(x+w, y+h, x,   y+h, r);
+        context.arcTo(x,   y+h, x,   y,   r);
+        context.arcTo(x,   y,   x+w, y,   r);
+        context.fill();
+        context.stroke();
+        context.closePath();
+    }
+
     function drawStatusAreaBorder(context, x, y) {
         context.strokeStyle = '#777';
         context.fillStyle = 'white';
@@ -116,6 +132,8 @@ function drawGameArea() {
         });
     });
 
+    var statusAreaY = getCurrentLevel().field.length * 68 + 10;
+    var statusAreaX = getCurrentLevel().field[0].length * 68;
     drawStatusAreaBorder(offscreenContext, 4, statusAreaY + 2);
     offscreenImage = offscreenContext.getImageData(0, 0, canvas.width, canvas.height);
 }
@@ -160,20 +178,6 @@ function drawDymanicGameElements() {
             context.strokeStyle = '#cfcf32';
             context.stroke();
         }
-    }
-
-    function roundedRect(context, x, y, w, h, r) {
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
-        context.beginPath();
-        context.moveTo(x+r - 1, y);
-        context.arcTo(x+w, y,   x+w, y+h, r);
-        context.arcTo(x+w, y+h, x,   y+h, r);
-        context.arcTo(x,   y+h, x,   y,   r);
-        context.arcTo(x,   y,   x+w, y,   r);
-        context.fill();
-        context.stroke();
-        context.closePath();
     }
 
     function drawKey(context, color, x, y) {
@@ -241,7 +245,6 @@ function drawDymanicGameElements() {
         }
     }
 
-    var canvas = $('.field')[0];
     var context = canvas.getContext('2d');
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
     var statusAreaX = getCurrentLevel().field[0].length * 68;
@@ -518,7 +521,6 @@ function updateLevelCompleted(deltaTime) {
 }
 
 function render() {
-    var canvas = $('.field')[0];
     var context = canvas.getContext('2d');
     context.fillStyle = '#fff';
     context.fillRect(robot.renderLeft, robot.renderTop, 57, 57);
