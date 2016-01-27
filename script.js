@@ -6,6 +6,7 @@ var canvas;
 var offscreenImage;
 var tokenizer;
 var program;
+var renderQueue = [];
 
 var memory = {
     lbl: {},
@@ -19,16 +20,20 @@ var gameState = 'MENU';
 var statusMessage = '';
 function setStatusMessage(msg) {
     statusMessage = msg;
-    drawDynamicGameElements();
+    renderQueue.push("STATUS_MESSAGE");
     clearTimeout(setStatusMessage.timoutId);
     setStatusMessage.timeoutId = setTimeout(function () {
         statusMessage = "";
-        drawDynamicGameElements();
+        renderQueue.push("STATUS_MESSAGE");
     }, 3000);
 }
 
 function getStatusMessage() {
     return statusMessage;
+}
+
+function addToRenderQueue(item) {
+    renderQueue.push(item);
 }
 
 $(function () {
@@ -70,10 +75,6 @@ function drawGameArea() {
         context.strokeStyle = '#777';
         context.fillStyle = 'white';
         roundedRect(context, x, y, 300, 28, 4);
-
-        context.fillStyle = '#000';
-        context.font = "16px Calibri";
-        context.fillText(statusMessage, x + 6, y + 18);
     }
 
     function drawTileWalls(context, tile, fieldItem, x, y) {
@@ -135,6 +136,7 @@ function drawGameArea() {
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
     var statusAreaX = getCurrentLevel().field[0].length * 68;
     drawStatusAreaBorder(offscreenContext, 4, statusAreaY + 2);
+    drawLEDs(getCurrentLevel().leds.length, offscreenContext, statusAreaX - 12, statusAreaY + 16);
     offscreenImage = offscreenContext.getImageData(0, 0, canvas.width, canvas.height);
 }
 
@@ -165,37 +167,6 @@ function drawLevelCompletedSplash() {
 }
 
 function drawDynamicGameElements() {
-    function drawLEDs(ledCount, context, x, y) {
-        for (var i = 0; i < ledCount; i++) {
-            context.beginPath();
-            context.arc(x - i * 24, y, 10, 2 * Math.PI, false);
-            if (getCurrentLevel().leds[ledCount - 1 - i].on) {
-                context.fillStyle = 'yellow';
-            } else {
-                context.fillStyle = 'white';
-            }
-            context.fill();
-            context.strokeStyle = '#cfcf32';
-            context.stroke();
-        }
-    }
-
-    function drawKey(context, color, x, y) {
-        if (!robot.key) {
-            context.fillStyle = '#fff';
-            context.fillRect(x, y, 24, 24);
-            return;
-        }
-
-        var img = new Image();
-
-        img.onload = function () {
-            context.drawImage(img, x, y);
-        };
-
-        img.src = "key_" + color + ".png";
-    }
-
     function drawTileItem(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
             var img = new Image();
@@ -249,9 +220,6 @@ function drawDynamicGameElements() {
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
     var statusAreaX = getCurrentLevel().field[0].length * 68;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.lineWidth = 2;
-
     context.putImageData(offscreenImage, 0, 0);
 
     getCurrentLevel().field.forEach(function (line, lineIndex) {
@@ -260,9 +228,6 @@ function drawDynamicGameElements() {
             drawTileItem(context, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
-
-    drawLEDs(getCurrentLevel().leds.length, context, statusAreaX - 12, statusAreaY + 16);
-    drawKey(context, robot.key, 309, statusAreaY + 5);
 }
 
 function createPlayer(startCoordinates) {
@@ -476,14 +441,14 @@ function update(deltaTime) {
             method: "PUT",
             data: controlledItem.on ? "on" : "off",
         });
-        drawDynamicGameElements();
+        renderQueue.push("LEDS");
     }
 
     function robotPushAnimationWithTriggerAction() {
         robotPushAnimation(robotPushAnimationTriggerAction);
     }
 
-    handleInstruction(robot, program, memory, robotPushAnimationWithTriggerAction, drawDynamicGameElements, setStatusMessage);
+    handleInstruction(robot, program, memory, robotPushAnimationWithTriggerAction, setStatusMessage, addToRenderQueue);
 
     if (robot.instructionCompleted) {
         robot.currentInstruction = undefined;
@@ -520,10 +485,71 @@ function updateLevelCompleted(deltaTime) {
     }
 }
 
+function drawLEDs(ledCount, context, x, y) {
+    for (var i = 0; i < ledCount; i++) {
+        context.beginPath();
+        context.arc(x - i * 24, y, 10, 2 * Math.PI, false);
+        if (getCurrentLevel().leds[ledCount - 1 - i].on) {
+            context.fillStyle = 'yellow';
+        } else {
+            context.fillStyle = 'white';
+        }
+        context.fill();
+        context.strokeStyle = '#cfcf32';
+        context.stroke();
+    }
+}
+
 function render() {
+    function drawStatusMessage(statusMessage, context, x, y) {
+        context.fillStyle = 'white';
+        context.fillRect(x + 4, y + 1, 292, 26);
+
+        context.fillStyle = '#000';
+        context.font = "16px Calibri";
+        context.fillText(statusMessage, x + 6, y + 18);
+    }
+
+    function drawKey(context, color, x, y) {
+        if (!robot.key) {
+            context.fillStyle = '#fff';
+            context.fillRect(x, y, 24, 24);
+            return;
+        }
+
+        var img = new Image();
+
+        img.onload = function () {
+            context.drawImage(img, x, y);
+        };
+
+        img.src = "key_" + color + ".png";
+    }
+
+    var statusAreaY = getCurrentLevel().field.length * 68 + 10;
+    var statusAreaX = getCurrentLevel().field[0].length * 68;
     var context = canvas.getContext('2d');
     context.fillStyle = '#fff';
     context.fillRect(robot.renderLeft, robot.renderTop, 57, 57);
+    if (renderQueue.length) {
+        switch (renderQueue.shift()) {
+            case "STATUS_MESSAGE":
+                drawStatusMessage(getStatusMessage(), context, 4, statusAreaY + 2);
+                break;
+            case "LEDS":
+                drawLEDs(getCurrentLevel().leds.length, context, statusAreaX - 12, statusAreaY + 16);
+                break;
+            case "KEYS":
+                drawKey(context, robot.key, 309, statusAreaY + 5);
+                break;
+            case "DOORS":
+            case "CHESTS":
+                drawDynamicGameElements();
+                drawLEDs(getCurrentLevel().leds.length, context, statusAreaX - 12, statusAreaY + 16);
+                drawKey(context, robot.key, 309, statusAreaY + 5);
+                break;
+        }
+    }
     // The robot takes 100 steps when moving from one map tile to the next
     // Each map tile is 68 x 68 pixels
     // So each robot step is 68/100 pixels

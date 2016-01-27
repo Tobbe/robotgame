@@ -42,7 +42,7 @@ var item;
 var lhs;
 var rhs;
 
-function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayingField, setStatusMessage) {
+function handleInstruction(robot, program, memory, robotPushAnimation, setStatusMessage, addToRenderQueue) {
     var instruction = (robot.currentInstruction || '').split(' ');
     var tileCoords;
 
@@ -110,6 +110,8 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
                 if (!chest.open) {
                     chest.open = true;
                     robot.key = foundKey;
+                    addToRenderQueue("KEYS");
+                    addToRenderQueue("CHESTS");
                     setStatusMessage("You collected a " + foundKey + " key!");
                 } else {
                     setStatusMessage("You can't open an already open chest");
@@ -131,12 +133,12 @@ function handleInstruction(robot, program, memory, robotPushAnimation, drawPlayi
                         tile[1] === 'E' && robot.key === 'green' ||
                         tile[1] === 'F' && robot.key === 'blue') {
                     door.open = true;
+                    addToRenderQueue("DOORS");
                 } else {
                     setStatusMessage("You need the correct key to open this door");
                 }
 
                 $('.field_item').remove();
-                drawPlayingField();
             } else {
                 setStatusMessage("There is no door");
             }
