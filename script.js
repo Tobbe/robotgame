@@ -7,6 +7,7 @@ var offscreenImage;
 var tokenizer;
 var program;
 var renderQueue = [];
+var images = {};
 
 var memory = {
     lbl: {},
@@ -41,6 +42,7 @@ $(function () {
     attachClickHandlers();
     drawGameMenu();
     createPlayer();
+    createImageReferences();
     requestAnimationFrame(frame);
 });
 
@@ -169,13 +171,7 @@ function drawLevelCompletedSplash() {
 function drawDynamicGameElements() {
     function drawTileItem(context, tile, fieldItem, x, y) {
         function drawItem(item, x, y) {
-            var img = new Image();
-
-            img.onload = function () {
-                context.drawImage(img, x + 10, y + 10);
-            };
-
-            img.src = item + ".png";
+            context.drawImage(images[item], x + 10, y + 10);
         }
 
         var door;
@@ -228,6 +224,20 @@ function drawDynamicGameElements() {
             drawTileItem(context, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
+}
+
+function createImageReferences() {
+    images.button = document.getElementById('button_img');
+    images.chest = document.getElementById('chest_img');
+    images.door_red = document.getElementById('door_red_img');
+    images.door_red_open = document.getElementById('door_red_open_img');
+    images.door_green = document.getElementById('door_green_img');
+    images.door_green_open = document.getElementById('door_green_open_img');
+    images.door_blue = document.getElementById('door_blue_img');
+    images.door_blue_open = document.getElementById('door_blue_open_img');
+    images.key_red = document.getElementById('key_red_img');
+    images.key_green = document.getElementById('key_green_img');
+    images.key_blue = document.getElementById('key_blue_img');
 }
 
 function createPlayer(startCoordinates) {
@@ -517,13 +527,7 @@ function render() {
             return;
         }
 
-        var img = new Image();
-
-        img.onload = function () {
-            context.drawImage(img, x, y);
-        };
-
-        img.src = "key_" + color + ".png";
+        context.drawImage(images['key_' + color], x, y);
     }
 
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
