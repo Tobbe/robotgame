@@ -2,8 +2,9 @@ var robot;
 var now;
 var deltaTime;
 var last = timestamp();
-var canvas;
-var offscreenImage;
+var fieldCanvas;
+var elementsCanvas;
+var robotCanvas;
 var tokenizer;
 var program;
 var renderQueue = [];
@@ -38,7 +39,9 @@ function addToRenderQueue(item) {
 }
 
 $(function () {
-    canvas = $('.field')[0];
+    fieldCanvas = $('.field')[0];
+    elementsCanvas = $('.interactive_elements')[0];
+    robotCanvas = $('.robot')[0];
     attachClickHandlers();
     drawGameMenu();
     createPlayer();
@@ -56,6 +59,11 @@ function getStartPosition() {
     }
 
     return {x: 0, y: 0};
+}
+
+function clearRobot() {
+    var robotContext = robotCanvas.getContext('2d');
+    robotContext.clearRect(0, 0, robotCanvas.width, robotCanvas.height);
 }
 
 function drawGameArea() {
@@ -121,25 +129,21 @@ function drawGameArea() {
         context.stroke();
     }
 
-    var offscreenCanvas = document.createElement('canvas');
-    offscreenCanvas.width = canvas.width;
-    offscreenCanvas.height = canvas.height;
-    var offscreenContext = offscreenCanvas.getContext('2d');
-    offscreenContext.clearRect(0, 0, canvas.width, canvas.height);
-    offscreenContext.lineWidth = 2;
+    var fieldContext = fieldCanvas.getContext('2d');
+    fieldContext.clearRect(0, 0, fieldCanvas.width, fieldCanvas.height);
+    fieldContext.lineWidth = 2;
 
     getCurrentLevel().field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
             var item = getCurrentLevel().items[lineIndex][tileIndex];
-            drawTileWalls(offscreenContext, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
+            drawTileWalls(fieldContext, tile, item, tileIndex * 68 + 1, lineIndex * 68 + 1);
         });
     });
 
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
     var statusAreaX = getCurrentLevel().field[0].length * 68;
-    drawStatusAreaBorder(offscreenContext, 4, statusAreaY + 2);
-    drawLEDs(getCurrentLevel().leds.length, offscreenContext, statusAreaX - 12, statusAreaY + 16);
-    offscreenImage = offscreenContext.getImageData(0, 0, canvas.width, canvas.height);
+    drawStatusAreaBorder(fieldContext, 4, statusAreaY + 2);
+    drawLEDs(getCurrentLevel().leds.length, fieldContext, statusAreaX - 12, statusAreaY + 16);
 }
 
 function drawGameMenu() {
@@ -212,11 +216,11 @@ function drawDynamicGameElements() {
         }
     }
 
-    var context = canvas.getContext('2d');
+    var context = elementsCanvas.getContext('2d');
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
     var statusAreaX = getCurrentLevel().field[0].length * 68;
 
-    context.putImageData(offscreenImage, 0, 0);
+    context.clearRect(0, 0, elementsCanvas.width, elementsCanvas.height);
 
     getCurrentLevel().field.forEach(function (line, lineIndex) {
         line.forEach(function (tile, tileIndex) {
@@ -258,6 +262,7 @@ function createPlayer(startCoordinates) {
 function prepareToPlay() {
     setRobotInitialValues(getStartPosition());
     resetItems();
+    clearRobot();
     drawGameArea();
     drawDynamicGameElements();
     setPageElementsToInitialState();
@@ -532,9 +537,7 @@ function render() {
 
     var statusAreaY = getCurrentLevel().field.length * 68 + 10;
     var statusAreaX = getCurrentLevel().field[0].length * 68;
-    var context = canvas.getContext('2d');
-    context.fillStyle = '#fff';
-    context.fillRect(robot.renderLeft, robot.renderTop, 57, 57);
+    var context = elementsCanvas.getContext('2d');
     if (renderQueue.length) {
         switch (renderQueue.shift()) {
             case "STATUS_MESSAGE":
@@ -554,12 +557,15 @@ function render() {
                 break;
         }
     }
+
+    var robotContext = robotCanvas.getContext('2d');
+    robotContext.clearRect(robot.renderLeft, robot.renderTop, 57, 57);
     // The robot takes 100 steps when moving from one map tile to the next
     // Each map tile is 68 x 68 pixels
     // So each robot step is 68/100 pixels
     robot.renderLeft = 6 + Math.round(robot.x * 68 / 100);
     robot.renderTop = 6 + Math.round(robot.y * 68 / 100);
-    context.drawImage(robot.img, robot.renderLeft, robot.renderTop);
+    robotContext.drawImage(robot.img, robot.renderLeft, robot.renderTop);
 }
 
 function frame() {

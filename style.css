@@ -8,8 +8,20 @@ h1, p {
     left: 20px;
 }
 
-.game_menu, .field, .level_completed_splash {
+.game_menu, .field, .level_completed_splash, .interactive_elements, .robot {
     position: absolute;
+}
+
+.field {
+    z-index: 100;
+}
+
+.interactive_elements {
+    z-index: 110;
+}
+
+.robot {
+    z-index: 120;
 }
 
 .game_menu, .level_completed_splash {
