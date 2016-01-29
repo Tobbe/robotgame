@@ -242,21 +242,59 @@ function createImageReferences() {
     images.key_red = document.getElementById('key_red_img');
     images.key_green = document.getElementById('key_green_img');
     images.key_blue = document.getElementById('key_blue_img');
+    images.robot = {
+        default: document.getElementById('robot_img'),
+        animations: {
+            push: [
+                document.getElementById('robot_animations_push_0'),
+                document.getElementById('robot_animations_push_1'),
+                document.getElementById('robot_animations_push_2'),
+                document.getElementById('robot_animations_push_3'),
+                document.getElementById('robot_animations_push_4'),
+                document.getElementById('robot_animations_push_3'),
+                document.getElementById('robot_animations_push_2'),
+                document.getElementById('robot_animations_push_1'),
+                document.getElementById('robot_animations_push_0')
+            ]
+        }
+    };
 }
 
 function createPlayer(startCoordinates) {
     robot = {
-        img: new Image(),
         speed: 2,
         currentTileCoords: function () {
             return {
                 x: robot.x / 100 | 0,
                 y: robot.y / 100 | 0
             };
+        },
+        getImage: function () {
+            if (robot.animation) {
+                return images.robot.animations[robot.animation][robot.animationFrame];
+            } else {
+                return images.robot.default;
+            }
+        },
+        animate: function (animation) {
+            robot.animation = animation;
+            (function nextFrame() {
+                setTimeout(function () {
+                    if (robot.animationFrame < images.robot.animations[robot.animation].length - 1) {
+                        robot.animationFrame++;
+                        nextFrame();
+                    } else {
+                        robot.animationFrame = 0;
+                        robot.animation = '';
+                    }
+                }, 50);
+            })();
+        },
+        isAnimating: function () {
+            return robot.animation !== '';
         }
     };
     setRobotInitialValues({x: 0, y: 0});
-    robot.img.src = 'robot.png';
 }
 
 function prepareToPlay() {
@@ -275,6 +313,8 @@ function setRobotInitialValues(coords) {
     robot.y = coords.y * 100;
     robot.dx = 0;
     robot.dy = 0;
+    robot.animation = '';
+    robot.animationFrame = 0;
     robot.currentInstruction = 'wait';
     robot.instructionCompleted = false;
 }
@@ -427,24 +467,12 @@ function update(deltaTime) {
     }
 
     function robotPushAnimation(triggerAction) {
-        /*robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
-        robot.animate({ opacity: 1 }, 50, function () {
-            robot[0].src = "img_push/robot_push_5.png";
-            triggerAction();
-        });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_4.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_3.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_2.png"; });
-        robot.animate({ opacity: 1 }, 50, function () { robot[0].src = "img_push/robot_push_1.png"; });
-        robot.animate({ opacity: 1 }, 50, function () {
-            robot[0].src = "robot.png";
-            robot.instructionCompleted = true;
-        });*/
-       triggerAction();
-       robot.instructionCompleted = true;
+        robot.animate('push');
+        setTimeout(triggerAction, 250);
+        // The animation should take 450 ms, but usually takes a little bit
+        // longer. Using 440 for the timeout we can be sure the animation is on
+        // its last frame, but has not yet completed
+        setTimeout(function () { robot.instructionCompleted = true; }, 440);
     }
 
     function robotPushAnimationTriggerAction() {
@@ -565,7 +593,7 @@ function render() {
     // So each robot step is 68/100 pixels
     robot.renderLeft = 6 + Math.round(robot.x * 68 / 100);
     robot.renderTop = 6 + Math.round(robot.y * 68 / 100);
-    robotContext.drawImage(robot.img, robot.renderLeft, robot.renderTop);
+    robotContext.drawImage(robot.getImage(), robot.renderLeft, robot.renderTop);
 }
 
 function frame() {
